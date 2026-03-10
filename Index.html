@@ -1,0 +1,3272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DomeMind PRO">
+<meta name="theme-color" content="#080c12">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>DomeMind PRO</title>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/face-api.js/0.22.2/face-api.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c12;--s1:#0e141f;--s2:#141d2e;--s3:#1b2640;--s4:#223050;
+  --b1:#253050;--b2:#2e3d5e;--b3:#3d5280;
+  --acc:#00c8ff;--grn:#00f090;--red:#ff4560;--yel:#ffc930;--pur:#b06aff;--org:#ff7a30;
+  --txt:#e8f0ff;--sub:#8499be;--dim:#4a5e80;
+  --font:'Rajdhani',sans-serif;--mono:'Share Tech Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:var(--font);}
+
+/* HEADER */
+.hdr{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  background:rgba(8,12,18,.97);border-bottom:1px solid var(--b2);z-index:200;position:relative;}
+.logo{font-size:18px;font-weight:700;letter-spacing:2px;display:flex;align-items:center;gap:8px;}
+.logo-lens{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#1a1a1a,#000);
+  border:1.5px solid var(--b3);box-shadow:0 0 12px rgba(0,200,255,.25),inset 0 0 8px rgba(0,200,255,.1);
+  display:flex;align-items:center;justify-content:center;position:relative;}
+.logo-lens::after{content:'';width:8px;height:8px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,200,255,.6),transparent);position:absolute;top:5px;left:6px;}
+.logo em{color:var(--acc);font-style:normal;}.logo sup{font-size:10px;color:var(--yel);vertical-align:super;}
+.hdr-stats{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:10px;color:var(--sub);}
+.hstat{display:flex;align-items:center;gap:4px;}.hstat b{color:var(--txt);font-size:12px;}
+.pill{display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:2px;
+  border:1px solid var(--b2);background:var(--s2);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;color:var(--sub);}
+.pill.live{border-color:rgba(0,240,144,.4);background:rgba(0,240,144,.08);color:var(--grn);}
+.pill.demo{border-color:rgba(255,201,48,.4);background:rgba(255,201,48,.08);color:var(--yel);}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--dim);}
+.pill.live .pdot{background:var(--grn);box-shadow:0 0 7px var(--grn);animation:blink 1.4s infinite;}
+.pill.demo .pdot{background:var(--yel);box-shadow:0 0 7px var(--yel);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hdr-time{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--txt);letter-spacing:2px;}
+
+/* ROOT LAYOUT */
+.root{display:grid;grid-template-columns:400px 1fr;height:calc(100vh - 46px);}
+
+/* LEFT PANEL */
+.left{display:flex;flex-direction:column;border-right:1px solid var(--b2);background:var(--s1);overflow:hidden;}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--b2);}
+.tab{padding:10px 6px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:1px;
+  font-family:var(--mono);color:var(--dim);border-bottom:2px solid transparent;transition:all .2s;user-select:none;}
+.tab:hover{color:var(--sub);}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc);background:rgba(0,200,255,.04);}
+.tab-ico{font-size:14px;display:block;margin-bottom:2px;}
+.tp{display:none;flex:1;flex-direction:column;overflow-y:auto;}
+.tp.on{display:flex;}
+.tp::-webkit-scrollbar{width:2px;}.tp::-webkit-scrollbar-thumb{background:var(--b2);}
+.sh{display:flex;align-items:center;gap:8px;padding:10px 14px 6px;
+  font-family:var(--mono);font-size:8px;letter-spacing:3px;font-weight:700;color:var(--sub);}
+.sh::after{content:'';flex:1;height:1px;background:var(--b2);}
+
+/* STATS ROW */
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--b2);}
+.s3c{padding:12px 8px;text-align:center;border-right:1px solid var(--b2);}
+.s3c:last-child{border-right:none;}
+.s3n{font-size:26px;font-weight:700;line-height:1;margin-bottom:2px;}
+.s3l{font-family:var(--mono);font-size:8px;color:var(--sub);letter-spacing:1px;}
+
+/* EMOTION CARD */
+.em-card{margin:0 12px 8px;display:grid;grid-template-columns:50px 1fr;gap:12px;align-items:center;
+  padding:11px 14px;background:var(--s2);border:1.5px solid var(--b2);border-radius:8px;transition:border-color .3s,background .3s;}
+.em-card.e-happy{border-color:rgba(0,240,144,.4);background:rgba(0,240,144,.06);}
+.em-card.e-angry{border-color:rgba(255,69,96,.5);background:rgba(255,69,96,.07);}
+.em-card.e-sad{border-color:rgba(0,200,255,.4);background:rgba(0,200,255,.05);}
+.em-card.e-surprised{border-color:rgba(255,201,48,.4);background:rgba(255,201,48,.05);}
+.em-card.e-fearful,.em-card.e-disgusted{border-color:rgba(176,106,255,.4);background:rgba(176,106,255,.05);}
+.em-ico{font-size:38px;line-height:1;text-align:center;}
+.em-name{font-size:19px;font-weight:700;line-height:1;margin-bottom:4px;}
+.em-row{display:flex;align-items:center;gap:8px;}
+.em-pct{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--grn);}
+.em-q{padding:2px 7px;border-radius:2px;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:1px;}
+.q-hi{background:rgba(0,240,144,.18);color:var(--grn);border:1px solid rgba(0,240,144,.35);}
+.q-md{background:rgba(255,201,48,.14);color:var(--yel);border:1px solid rgba(255,201,48,.35);}
+.q-lo{background:rgba(255,69,96,.14);color:var(--red);border:1px solid rgba(255,69,96,.35);}
+
+/* EXPRESSION BARS */
+.expr-bars{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;margin:0 12px 8px;
+  background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:10px 12px;}
+.xb{display:flex;flex-direction:column;gap:4px;}
+.xb-hdr{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--sub);}
+.xb-hdr span:last-child{color:var(--txt);font-weight:700;}
+.xb-tr{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.xb-fi{height:100%;border-radius:2px;transition:width .2s;}
+
+/* POSITIVITY INDEX */
+.pos-idx{margin:0 12px 6px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:9px 12px;}
+.pi-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.pi-lbl{font-family:var(--mono);font-size:8px;color:var(--sub);letter-spacing:2px;font-weight:700;}
+.pi-num{font-family:var(--mono);font-size:18px;font-weight:700;}
+.pi-track{height:10px;border-radius:5px;overflow:hidden;
+  background:linear-gradient(90deg,#ff1f3d,#ff8c00,#ffc930,#b8e000,#00f090);}
+.pi-cursor-wrap{position:relative;height:10px;margin-top:-10px;}
+.pi-cursor{position:absolute;top:-2px;width:4px;height:14px;background:#fff;border-radius:2px;
+  transform:translateX(-50%);box-shadow:0 0 8px rgba(255,255,255,.8);transition:left .4s;}
+
+/* ATTENTION ROW */
+.att-row{margin:0 12px 6px;display:flex;gap:8px;}
+.att-card{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:8px 10px;text-align:center;}
+.att-card-lbl{font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:1px;margin-bottom:4px;}
+.att-ring-wrap{position:relative;width:52px;height:52px;margin:0 auto;}
+.att-ring-wrap svg{transform:rotate(-90deg);}
+.att-r-bg{fill:none;stroke:var(--s3);stroke-width:5;}
+.att-r-fg{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .4s,stroke .3s;}
+.att-r-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:11px;font-weight:700;}
+.att-big{font-size:26px;font-weight:700;font-family:var(--mono);line-height:1;}
+.att-sub{font-size:9px;color:var(--sub);margin-top:3px;}
+
+/* WISH CARD */
+.wish-card{margin:0 12px 6px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;
+  padding:9px 12px;display:flex;align-items:center;gap:10px;transition:border-color .3s;}
+.wish-ico{font-size:26px;flex-shrink:0;}
+.wish-label{font-size:13px;font-weight:700;color:var(--txt);}
+.wish-sub{font-size:10px;color:var(--sub);}
+.wish-conf{font-family:var(--mono);font-size:14px;font-weight:700;margin-left:auto;flex-shrink:0;}
+
+/* DEMO PROFILE ROW */
+.demo-row{margin:0 12px 6px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.demo-card{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:8px;text-align:center;}
+.demo-ico{font-size:18px;margin-bottom:2px;}
+.demo-lbl{font-family:var(--mono);font-size:7px;color:var(--dim);letter-spacing:1px;margin-bottom:3px;}
+.demo-val{font-size:15px;font-weight:700;font-family:var(--mono);}
+
+/* MC STATUS */
+.mc-status{margin:0 12px 6px;padding:7px 12px;border-radius:4px;display:flex;align-items:center;
+  gap:8px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;
+  background:rgba(0,200,255,.07);border:1px solid rgba(0,200,255,.2);color:var(--acc);}
+.mc-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.mc-dot.on{background:var(--acc);box-shadow:0 0 8px var(--acc);animation:blink 1.4s infinite;}
+
+/* AGENT */
+.ag{margin:0 12px 8px;border:1.5px solid var(--b2);border-radius:8px;overflow:hidden;transition:border-color .3s;}
+.ag.alert{border-color:rgba(255,69,96,.5);}.ag.warn{border-color:rgba(255,201,48,.4);}.ag.good{border-color:rgba(0,240,144,.4);}
+.ag-h{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--s3);border-bottom:1px solid var(--b2);}
+.ag-t{font-size:13px;font-weight:700;color:var(--txt);}
+.ag-b{font-family:var(--mono);font-size:8px;letter-spacing:1px;font-weight:700;padding:2px 8px;border-radius:2px;}
+.b-al{background:rgba(255,69,96,.18);color:var(--red);border:1px solid rgba(255,69,96,.35);}
+.b-wa{background:rgba(255,201,48,.14);color:var(--yel);border:1px solid rgba(255,201,48,.35);}
+.b-go{background:rgba(0,240,144,.14);color:var(--grn);border:1px solid rgba(0,240,144,.3);}
+.b-in{background:rgba(0,200,255,.1);color:var(--acc);border:1px solid rgba(0,200,255,.25);}
+.ag-x{padding:8px 12px;font-size:12px;color:var(--sub);line-height:1.65;}
+.ag-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 10px;}
+.ag-btn{font-family:var(--mono);font-size:9px;font-weight:700;padding:8px;border-radius:4px;
+  border:1px solid var(--b2);background:var(--s3);color:var(--txt);cursor:pointer;transition:all .15s;text-align:center;}
+.ag-btn:hover{border-color:var(--acc);color:var(--acc);}
+.ag-btn.p{background:var(--acc);color:#000;border-color:var(--acc);}
+.ag-btn.p:hover{background:#33d4ff;}
+
+/* SMOOTH */
+.sc-wrap{margin:0 12px 8px;}
+.sc-cells{display:flex;gap:2px;height:22px;align-items:flex-end;}
+.sc{flex:1;border-radius:2px 2px 0 0;min-height:3px;transition:all .2s;}
+
+/* LOG */
+.log-block{margin:0 12px 6px;}
+.log-list{display:flex;flex-direction:column;gap:3px;max-height:130px;overflow-y:auto;}
+.log-list::-webkit-scrollbar{width:2px;}.log-list::-webkit-scrollbar-thumb{background:var(--b2);}
+.lr{display:grid;grid-template-columns:54px 16px 1fr 36px;gap:5px;align-items:center;
+  padding:5px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:3px;animation:fin .2s forwards;opacity:0;}
+@keyframes fin{to{opacity:1}}
+.lr-t{font-family:var(--mono);font-size:8px;color:var(--dim);}
+.lr-e{font-size:13px;}.lr-m{font-size:10px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lr-s{font-family:var(--mono);font-size:7px;padding:2px 3px;border-radius:2px;text-align:center;font-weight:700;}
+.s-h{background:rgba(255,69,96,.18);color:var(--red);border:1px solid rgba(255,69,96,.3);}
+.s-m{background:rgba(255,201,48,.14);color:var(--yel);border:1px solid rgba(255,201,48,.3);}
+.s-l{background:rgba(0,240,144,.1);color:var(--grn);border:1px solid rgba(0,240,144,.22);}
+
+/* ── TAB 2: MICRO ── */
+.calib-block{margin:0 12px 8px;padding:12px 14px;background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.2);border-radius:8px;}
+.calib-title{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--acc);margin-bottom:8px;font-weight:700;}
+.calib-bar-wrap{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.calib-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--grn));width:0%;transition:width .3s;}
+.calib-txt{font-family:var(--mono);font-size:9px;color:var(--sub);}
+.calib-status{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.calib-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);}
+.calib-dot.ready{background:var(--grn);box-shadow:0 0 8px var(--grn);animation:blink 1.4s infinite;}
+.calib-dot.running{background:var(--yel);animation:blink .8s infinite;}
+
+.zones-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 12px 8px;}
+.zone-card{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:8px 10px;}
+.zone-name{font-family:var(--mono);font-size:9px;color:var(--sub);letter-spacing:1px;margin-bottom:5px;font-weight:700;}
+.zone-val{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:4px;}
+.zone-spark{height:28px;display:flex;align-items:flex-end;gap:1px;}
+.zone-bar{flex:1;border-radius:1px 1px 0 0;min-height:2px;transition:height .15s;}
+.zone-trend{font-family:var(--mono);font-size:8px;color:var(--dim);margin-top:3px;}
+
+.micro-timeline{margin:0 12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:10px 12px;}
+.mt-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.mt-title{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);font-weight:700;}
+.mt-fps{font-family:var(--mono);font-size:9px;color:var(--acc);}
+.mt-canvas-wrap{position:relative;height:60px;background:var(--s3);border-radius:4px;overflow:hidden;}
+#microCanvas{width:100%;height:60px;}
+.mt-legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+.mt-leg{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:8px;color:var(--sub);}
+.mt-dot{width:6px;height:6px;border-radius:50%;}
+
+/* AV CIRCUMPLEX */
+.av-panel{margin:0 12px 6px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:10px 12px;}
+.av-title{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);font-weight:700;margin-bottom:8px;}
+.av-canvas-wrap{display:flex;justify-content:center;}
+.av-quadrants{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px;}
+.av-q{padding:6px 8px;border-radius:4px;border:1px solid var(--b2);background:var(--s3);transition:background .3s,border-color .3s;}
+.av-q-name{font-family:var(--mono);font-size:8px;letter-spacing:1px;font-weight:700;margin-bottom:2px;}
+.av-q-val{font-family:var(--mono);font-size:12px;font-weight:700;float:right;margin-top:-16px;}
+.av-q-desc{font-size:9px;color:var(--sub);}
+
+/* MICRO EVENTS */
+.micro-events{margin:0 12px 8px;}
+.me-list{display:flex;flex-direction:column;gap:3px;max-height:130px;overflow-y:auto;}
+.me-list::-webkit-scrollbar{width:2px;}.me-list::-webkit-scrollbar-thumb{background:var(--b2);}
+.me-row{display:flex;align-items:center;gap:8px;padding:5px 10px;
+  background:var(--s2);border:1px solid var(--b2);border-radius:3px;animation:fin .2s forwards;opacity:0;}
+.me-t{font-family:var(--mono);font-size:8px;color:var(--dim);flex-shrink:0;}
+.me-zone{font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:2px;flex-shrink:0;font-weight:700;}
+.me-desc{font-size:10px;color:var(--sub);flex:1;}
+.me-mag{font-family:var(--mono);font-size:9px;font-weight:700;}
+
+/* ── TAB 3: PROFILE ── */
+.profile-card{margin:0 12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;overflow:hidden;}
+.pc-hdr{padding:10px 14px;background:var(--s3);border-bottom:1px solid var(--b2);display:flex;align-items:center;justify-content:space-between;}
+.pc-title{font-size:14px;font-weight:700;color:var(--txt);}
+.pc-sub{font-family:var(--mono);font-size:9px;color:var(--sub);}
+.pc-traits{padding:10px 14px;display:flex;flex-direction:column;gap:6px;}
+.pct{display:grid;grid-template-columns:110px 1fr 38px;gap:8px;align-items:center;}
+.pct-name{font-size:11px;font-weight:600;color:var(--sub);}
+.pct-track{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.pct-fill{height:100%;border-radius:2px;transition:width .5s;}
+.pct-val{font-family:var(--mono);font-size:11px;font-weight:700;text-align:right;}
+.face-map{margin:0 12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:12px;}
+.fm-title{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);font-weight:700;margin-bottom:8px;}
+.fm-zones{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.fmz{padding:8px;background:var(--s3);border-radius:4px;border:1px solid var(--b2);text-align:center;}
+.fmz-ico{font-size:18px;margin-bottom:3px;}
+.fmz-name{font-family:var(--mono);font-size:7px;color:var(--dim);letter-spacing:1px;margin-bottom:3px;}
+.fmz-val{font-size:13px;font-weight:700;font-family:var(--mono);}
+.buy-block{margin:0 12px 8px;display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;}
+.buy-ring{width:56px;height:56px;flex-shrink:0;}
+.buy-ring svg{transform:rotate(-90deg);}
+.r-bg{fill:none;stroke:var(--s3);stroke-width:4;}
+.r-fg{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .6s,stroke .4s;}
+.buy-info{flex:1;}
+.buy-lbl{font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:2px;font-weight:700;}
+.buy-pct{font-size:36px;font-weight:700;line-height:1;margin-bottom:2px;}
+.buy-desc{font-size:11px;color:var(--txt);font-weight:500;}
+.tactic-box{margin:0 12px 8px;padding:10px 14px;background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.18);
+  border-left:3px solid var(--acc);border-radius:0 6px 6px 0;font-size:12px;color:var(--txt);line-height:1.7;}
+.tactic-box strong{display:block;font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--acc);margin-bottom:4px;font-weight:700;}
+
+/* CONTROLS */
+.ctrl{padding:10px 12px;border-top:1px solid var(--b2);background:var(--s1);display:flex;flex-direction:column;gap:7px;}
+.mode-row{display:none;}
+.mbt{display:none;flex:1;padding:7px 3px;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.5px;
+  border-radius:4px;border:1px solid var(--b2);background:var(--s2);color:var(--sub);cursor:pointer;transition:all .15s;text-align:center;}
+.mbt:hover{color:var(--txt);}
+.mbt.on{border-color:var(--acc);color:var(--acc);background:rgba(0,200,255,.1);}
+.go-btn{width:100%;padding:12px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:2px;
+  border-radius:5px;border:none;cursor:pointer;background:var(--acc);color:#000;transition:all .2s;}
+.go-btn:hover{background:#33d4ff;box-shadow:0 0 20px rgba(0,200,255,.4);}
+.go-btn:disabled{background:var(--s3);color:var(--dim);cursor:not-allowed;box-shadow:none;}
+.stop-btn{width:100%;padding:12px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:2px;
+  border-radius:5px;border:2px solid rgba(255,69,96,.4);background:rgba(255,69,96,.1);color:var(--red);cursor:pointer;display:none;}
+.stop-btn:hover{background:rgba(255,69,96,.2);}
+
+/* RIGHT PANEL */
+.right{display:flex;flex-direction:column;gap:10px;padding:12px;overflow:hidden;background:var(--bg);}
+
+/* CAMERA */
+.cam-box{position:relative;flex-shrink:0;width:100%;height:195px;background:var(--s1);border:1px solid var(--b2);border-radius:8px;overflow:hidden;}
+.cam-box::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(8,12,18,.55) 100%);pointer-events:none;z-index:5;}
+#vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1);}
+#oc{position:absolute;inset:0;width:100%;height:100%;display:none;transform:scaleX(-1);z-index:4;}
+.cam-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.cam-ph-i{font-size:32px;opacity:.18;}
+.cam-ph-t{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--sub);}
+.cam-ph-s{font-size:10px;font-family:var(--mono);color:var(--dim);text-align:center;line-height:1.6;}
+.bk{position:absolute;width:13px;height:13px;z-index:6;}
+.bk.tl{top:7px;left:7px;border-top:2px solid var(--acc);border-left:2px solid var(--acc);}
+.bk.tr{top:7px;right:7px;border-top:2px solid var(--acc);border-right:2px solid var(--acc);}
+.bk.bl{bottom:7px;left:7px;border-bottom:2px solid var(--acc);border-left:2px solid var(--acc);}
+.bk.br{bottom:7px;right:7px;border-bottom:2px solid var(--acc);border-right:2px solid var(--acc);}
+.hud-tl{position:absolute;top:8px;left:8px;z-index:10;display:flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:9px;color:var(--sub);background:rgba(8,12,18,.8);padding:3px 8px;border-radius:2px;}
+.hud-tr{position:absolute;top:8px;right:8px;z-index:10;font-family:var(--mono);font-size:9px;color:var(--sub);
+  background:rgba(8,12,18,.75);padding:3px 8px;border-radius:2px;}
+.hud-br{position:absolute;bottom:8px;right:8px;z-index:10;font-family:var(--mono);font-size:9px;color:var(--dim);
+  background:rgba(8,12,18,.7);padding:3px 8px;border-radius:2px;}
+.scanline{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent);
+  opacity:0;z-index:7;animation:scanfx 3.5s linear infinite;}
+.scanline.on{opacity:.3;}
+@keyframes scanfx{0%{top:0%}100%{top:100%}}
+.ang-ov{position:absolute;bottom:8px;left:8px;right:55px;z-index:10;display:none;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;
+  background:rgba(255,201,48,.14);border:1px solid rgba(255,201,48,.35);color:var(--yel);}
+.ang-ov.show{display:flex;}
+.load-ov{position:absolute;inset:0;background:rgba(8,12,18,.92);display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;z-index:20;border-radius:8px;}
+.load-ov.on{display:flex;}
+.spin{width:30px;height:30px;border:2px solid var(--b2);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-msg{font-family:var(--mono);font-size:10px;color:var(--acc);letter-spacing:1px;text-align:center;padding:0 14px;}
+
+/* DOME BAR */
+.dome-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;flex-shrink:0;background:var(--s2);border:1px solid var(--b2);border-radius:6px;}
+.dm{width:32px;height:20px;position:relative;flex-shrink:0;}
+.dm-b{width:32px;height:16px;background:linear-gradient(180deg,#f0f0f0,#aaa);border-radius:16px 16px 0 0;position:absolute;bottom:0;box-shadow:0 3px 8px rgba(0,0,0,.5);}
+.dm-l{width:12px;height:12px;background:radial-gradient(circle at 35% 35%,#222,#000);border-radius:50%;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);border:1.5px solid #555;box-shadow:0 0 7px rgba(0,200,255,.4);}
+.dm-model{font-size:12px;font-weight:700;color:var(--txt);}
+.dm-spec{font-family:var(--mono);font-size:9px;color:var(--dim);}
+.dm-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:4px 10px;border-radius:3px;background:rgba(0,200,255,.12);border:1px solid rgba(0,200,255,.3);color:var(--acc);flex-shrink:0;}
+
+/* POSE AXES */
+.pose-ax{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;flex-shrink:0;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:9px 12px;}
+.ax{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.ax-l{font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--dim);font-weight:700;}
+.ax-tr{width:100%;height:5px;background:var(--s3);border-radius:3px;position:relative;overflow:hidden;}
+.ax-fi{position:absolute;top:0;height:100%;border-radius:3px;transition:all .15s;}
+.ax-v{font-family:var(--mono);font-size:13px;font-weight:700;}
+
+/* DEAL GAUGE */
+.deal-gauge{flex-shrink:0;background:var(--s1);border:2px solid var(--b2);border-radius:10px;padding:14px 16px;transition:border-color .5s,box-shadow .5s;}
+.dg-title{font-family:var(--mono);font-size:9px;letter-spacing:3px;font-weight:700;color:var(--sub);margin-bottom:10px;text-align:center;}
+.dg-track{position:relative;height:36px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(90deg,#ff1f3d 0%,#ff5020 18%,#ff8c00 32%,#ffc930 46%,#b8e000 60%,#50d830 75%,#00f090 100%);}
+.dg-cursor{position:absolute;top:50%;width:5px;height:28px;border-radius:3px;background:#fff;
+  transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(255,255,255,.9),0 0 24px rgba(255,255,255,.4);
+  transition:left .7s cubic-bezier(.34,1.2,.64,1);z-index:3;left:50%;}
+.dg-labels{display:flex;justify-content:space-between;margin-top:4px;font-family:var(--mono);font-size:8px;color:var(--dim);}
+.dg-score{text-align:center;margin-top:8px;}
+.dg-num{font-size:52px;font-weight:700;font-family:var(--mono);line-height:1;transition:color .5s;}
+.dg-verdict{font-size:14px;font-weight:700;letter-spacing:1px;margin-top:4px;transition:color .5s;}
+.dg-sub{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;}
+.dg-factors{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;}
+.dg-f{padding:6px 4px;background:var(--s2);border:1px solid var(--b2);border-radius:4px;text-align:center;}
+.dg-f-name{font-family:var(--mono);font-size:7px;color:var(--dim);letter-spacing:.5px;margin-bottom:3px;white-space:nowrap;}
+.dg-f-val{font-family:var(--mono);font-size:12px;font-weight:700;}
+.dg-f-bar{height:3px;background:var(--s3);border-radius:2px;margin-top:3px;overflow:hidden;}
+.dg-f-fill{height:100%;border-radius:2px;transition:width .4s;}
+
+/* LIVE ZONES (right panel) */
+.live-zones{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:10px 14px;flex-shrink:0;}
+.lz-title{font-family:var(--mono);font-size:8px;color:var(--sub);letter-spacing:2px;margin-bottom:8px;font-weight:700;}
+.lz-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;}
+.lz-cell{text-align:center;padding:6px;background:var(--s3);border-radius:4px;border:1px solid var(--b2);}
+.lz-ico{font-size:16px;}
+.lz-name{font-family:var(--mono);font-size:8px;color:var(--dim);margin:2px 0;}
+.lz-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--sub);}
+
+/* TOAST */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--s2);border:1px solid var(--b2);
+  border-left:3px solid var(--acc);padding:11px 14px;border-radius:6px;max-width:290px;z-index:9999;
+  transform:translateX(130%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 40px rgba(0,0,0,.7);}
+.toast.show{transform:translateX(0);}
+.toast-t{font-weight:700;font-size:13px;margin-bottom:2px;color:var(--txt);}
+.toast-b{color:var(--sub);font-size:11px;line-height:1.5;}
+
+/* ══════════════════════════════════════
+   IPHONE / MOBILE FULL REDESIGN
+   ══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   iPHONE / MOBILE — Full redesign
+   ═══════════════════════════════════════════════════ */
+@media(max-width:768px){
+  :root{
+    --hdr: 52px;
+    --tab: 60px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+  }
+  /* Hide desktop layout */
+  .root{ display:none!important; }
+  /* Show mobile layout */
+  #mobileWrap{ display:flex!important; }
+
+  /* Header on mobile */
+  .hdr{
+    height: calc(var(--hdr) + var(--safe-top));
+    padding-top: var(--safe-top);
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .hdr-stats{ gap:8px; }
+  .hstat{ font-size:9px; }
+  .hstat b{ font-size:11px; }
+  .logo{ font-size:16px; }
+  .hdr-time{ font-size:12px; letter-spacing:1px; }
+
+  /* Toast above bottom tabs */
+  .toast{
+    bottom: calc(var(--tab) + var(--safe-bot) + 12px)!important;
+    left: 12px; right: 12px; max-width:none;
+  }
+
+  /* Bigger touch targets everywhere */
+  button{ min-height: 48px; }
+}
+
+@media(min-width:769px){
+  #mobileWrap{ display:none!important; }
+}
+
+}
+
+/* ═══ WiFi CAMERA MANAGER ═══ */
+.wifi-panel{margin:0 12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;overflow:hidden;}
+.wifi-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;
+  background:var(--s3);border-bottom:1px solid var(--b2);}
+.wifi-title{font-family:var(--mono);font-size:9px;letter-spacing:2px;font-weight:700;color:var(--acc);}
+.wifi-scan-btn{font-family:var(--mono);font-size:8px;padding:5px 11px;border-radius:3px;
+  border:1px solid rgba(0,200,255,.4);background:rgba(0,200,255,.1);color:var(--acc);
+  cursor:pointer;font-weight:700;transition:all .2s;min-height:32px;}
+.wifi-scan-btn:hover{background:rgba(0,200,255,.25);}
+.wifi-scan-btn.scanning{border-color:var(--yel);color:var(--yel);background:rgba(255,201,48,.1);animation:blink .7s infinite;}
+.wifi-cam-list{display:flex;flex-direction:column;gap:0;}
+.wifi-cam-item{display:flex;align-items:center;gap:10px;padding:9px 13px;
+  border-bottom:1px solid var(--b2);cursor:pointer;transition:background .15s;}
+.wifi-cam-item:last-child{border-bottom:none;}
+.wifi-cam-item:hover{background:rgba(0,200,255,.05);}
+.wifi-cam-item.active{background:rgba(0,240,144,.06);border-left:3px solid var(--grn);}
+.wifi-cam-item.connecting{background:rgba(255,201,48,.05);border-left:3px solid var(--yel);}
+.wifi-cam-item.error{background:rgba(255,69,96,.05);border-left:3px solid var(--red);}
+.wci-icon{font-size:22px;flex-shrink:0;}
+.wci-info{flex:1;min-width:0;}
+.wci-name{font-size:12px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wci-url{font-family:var(--mono);font-size:8px;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wci-status{font-family:var(--mono);font-size:7px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;}
+.ws-ok{background:rgba(0,240,144,.15);color:var(--grn);border:1px solid rgba(0,240,144,.3);}
+.ws-cn{background:rgba(255,201,48,.12);color:var(--yel);border:1px solid rgba(255,201,48,.3);}
+.ws-no{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.ws-id{background:rgba(0,200,255,.1);color:var(--acc);border:1px solid rgba(0,200,255,.2);}
+.wifi-add-row{display:flex;gap:6px;padding:9px 13px;}
+.wifi-url-inp{flex:1;background:var(--s3);border:1px solid var(--b2);border-radius:4px;
+  padding:7px 10px;font-family:var(--mono);font-size:9px;color:var(--txt);outline:none;min-height:36px;}
+.wifi-url-inp:focus{border-color:var(--acc);}
+.wifi-url-inp::placeholder{color:var(--dim);}
+.wifi-add-btn{font-family:var(--mono);font-size:8px;padding:7px 13px;border-radius:4px;
+  border:1px solid var(--acc);background:rgba(0,200,255,.12);color:var(--acc);
+  cursor:pointer;font-weight:700;white-space:nowrap;min-height:36px;}
+.wifi-proto-row{display:flex;gap:5px;padding:0 13px 9px;}
+.wifi-proto{font-family:var(--mono);font-size:8px;padding:5px 10px;border-radius:3px;
+  border:1px solid var(--b2);background:var(--s3);color:var(--sub);cursor:pointer;transition:all .2s;min-height:32px;}
+.wifi-proto.on{border-color:var(--acc);color:var(--acc);background:rgba(0,200,255,.1);}
+
+/* Camera source selector in HUD */
+.cam-src-bar{position:absolute;bottom:36px;left:8px;right:8px;z-index:10;display:flex;gap:5px;flex-wrap:wrap;}
+.csb-btn{font-family:var(--mono);font-size:8px;padding:4px 9px;border-radius:3px;
+  border:1px solid rgba(0,200,255,.3);background:rgba(8,12,18,.85);color:var(--acc);
+  cursor:pointer;font-weight:700;transition:all .15s;white-space:nowrap;}
+.csb-btn:hover,.csb-btn.on{background:rgba(0,200,255,.25);border-color:var(--acc);}
+.csb-btn.wifi-src{border-color:rgba(0,240,144,.4);color:var(--grn);}
+.csb-btn.wifi-src.on{background:rgba(0,240,144,.2);}
+
+/* Mesh toggle button */
+.mesh-btn{position:absolute;top:7px;left:50%;transform:translateX(-50%);z-index:10;
+  font-family:var(--mono);font-size:8px;padding:4px 12px;border-radius:3px;
+  border:1px solid rgba(176,106,255,.4);background:rgba(8,12,18,.85);color:var(--pur);
+  cursor:pointer;font-weight:700;transition:all .2s;white-space:nowrap;min-height:30px;}
+.mesh-btn.on{background:rgba(176,106,255,.25);border-color:var(--pur);box-shadow:0 0 12px rgba(176,106,255,.3);}
+
+/* WiFi signal strength bars */
+.wifi-sig{display:flex;align-items:flex-end;gap:1px;height:12px;flex-shrink:0;}
+.wifi-sig-bar{width:3px;border-radius:1px;background:var(--dim);}
+.wifi-sig-bar.on{background:var(--grn);}
+
+</style>
+</head>
+<body>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo"><div class="logo-lens"></div>Dome<em>Mind</em><sup>PRO</sup></div>
+  <div class="hdr-stats">
+    <div class="pill" id="statusPill"><div class="pdot"></div><span id="statusTxt">STANDBY</span></div>
+    <div class="hstat">YAW <b id="hYaw">—</b></div>
+    <div class="hstat">FPS <b id="hFps">—</b></div>
+    <div class="hstat">ATT <b id="hAtt" style="color:var(--acc)">—</b></div>
+    <div class="hstat">PI <b id="hPI" style="color:var(--yel)">—</b></div>
+    <div class="hstat">МИКРО <b id="hMicro" style="color:var(--yel)">0</b></div>
+  </div>
+  <div class="hdr-time" id="clock">--:--:--</div>
+</div>
+
+<div class="root">
+<!-- ══ LEFT ══ -->
+<div class="left">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0,this)"><span class="tab-ico">😊</span>ЭМОЦИЯ</div>
+    <div class="tab" onclick="switchTab(1,this)"><span class="tab-ico">⚡</span>МИКРО</div>
+    <div class="tab" onclick="switchTab(2,this)"><span class="tab-ico">🧠</span>ПРОФИЛЬ</div>
+  </div>
+
+  <!-- TAB 0: EMOTION -->
+  <div class="tp on" id="tp0">
+    <div class="stats3">
+      <div class="s3c"><div class="s3n" id="sF" style="color:var(--acc)">0</div><div class="s3l">КАДРОВ</div></div>
+      <div class="s3c"><div class="s3n" id="sP" style="color:var(--grn)">—</div><div class="s3l">ПОЗИТИВ</div></div>
+      <div class="s3c"><div class="s3n" id="sA" style="color:var(--red)">0</div><div class="s3l">ТРЕВОГ</div></div>
+    </div>
+    <div class="sh">Текущая эмоция</div>
+    <div class="em-card" id="emCard">
+      <div class="em-ico" id="emIco">😐</div>
+      <div><div class="em-name" id="emName">Ожидание</div>
+        <div class="em-row"><span class="em-pct" id="emPct">—</span><span class="em-q q-hi" id="emQ">НЕАКТИВНА</span></div>
+      </div>
+    </div>
+    <div class="expr-bars">
+      <div class="xb"><div class="xb-hdr"><span>😊 Радость</span><span id="pv_happy">0%</span></div><div class="xb-tr"><div class="xb-fi" id="pb_happy" style="width:0%;background:#00f090"></div></div></div>
+      <div class="xb"><div class="xb-hdr"><span>😠 Злость</span><span id="pv_angry">0%</span></div><div class="xb-tr"><div class="xb-fi" id="pb_angry" style="width:0%;background:#ff4560"></div></div></div>
+      <div class="xb"><div class="xb-hdr"><span>😢 Грусть</span><span id="pv_sad">0%</span></div><div class="xb-tr"><div class="xb-fi" id="pb_sad" style="width:0%;background:#00c8ff"></div></div></div>
+      <div class="xb"><div class="xb-hdr"><span>😲 Удивление</span><span id="pv_surprised">0%</span></div><div class="xb-tr"><div class="xb-fi" id="pb_surprised" style="width:0%;background:#ffc930"></div></div></div>
+      <div class="xb"><div class="xb-hdr"><span>😐 Нейтраль</span><span id="pv_neutral">0%</span></div><div class="xb-tr"><div class="xb-fi" id="pb_neutral" style="width:0%;background:#4a5e80"></div></div></div>
+      <div class="xb"><div class="xb-hdr"><span>😨 Страх</span><span id="pv_fearful">0%</span></div><div class="xb-tr"><div class="xb-fi" id="pb_fearful" style="width:0%;background:#b06aff"></div></div></div>
+    </div>
+    <div class="sh">Positivity Index · Arousal-Valence</div>
+    <div class="pos-idx">
+      <div class="pi-hdr"><span class="pi-lbl">ПОЗИТИВНОСТЬ</span><span class="pi-num" id="piNum" style="color:var(--sub)">—</span></div>
+      <div class="pi-track"></div>
+      <div class="pi-cursor-wrap"><div class="pi-cursor" id="piCursor" style="left:50%"></div></div>
+    </div>
+    <div class="sh">Внимание · Arousal · Valence</div>
+    <div class="att-row">
+      <div class="att-card">
+        <div class="att-card-lbl">ВНИМАНИЕ</div>
+        <div class="att-ring-wrap">
+          <svg viewBox="0 0 52 52" width="52" height="52">
+            <circle class="att-r-bg" cx="26" cy="26" r="22"/>
+            <circle class="att-r-fg" id="attRing" cx="26" cy="26" r="22" stroke="#00c8ff" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+          </svg>
+          <div class="att-r-num" id="attNum" style="color:var(--acc)">—</div>
+        </div>
+        <div class="att-sub" id="attLbl">ожидание</div>
+      </div>
+      <div class="att-card">
+        <div class="att-card-lbl">AROUSAL</div>
+        <div class="att-big" id="arousalNum" style="color:var(--yel)">—</div>
+        <div class="att-sub" id="arousalLbl">возбуждение</div>
+      </div>
+      <div class="att-card">
+        <div class="att-card-lbl">VALENCE</div>
+        <div class="att-big" id="valenceNum" style="color:var(--grn)">—</div>
+        <div class="att-sub" id="valenceLbl">валентность</div>
+      </div>
+    </div>
+    <div class="sh">Намерение клиента</div>
+    <div class="wish-card" id="wishCard">
+      <div class="wish-ico" id="wishIco">🤔</div>
+      <div><div class="wish-label" id="wishLabel">Ожидание данных</div><div class="wish-sub" id="wishSub">запустите камеру</div></div>
+      <div class="wish-conf" id="wishConf" style="color:var(--sub)">—</div>
+    </div>
+    <div class="sh">Профиль клиента</div>
+    <div class="demo-row">
+      <div class="demo-card"><div class="demo-ico">🎂</div><div class="demo-lbl">ВОЗРАСТ</div><div class="demo-val" id="mcAge" style="color:var(--acc)">—</div></div>
+      <div class="demo-card"><div class="demo-ico">👤</div><div class="demo-lbl">ПОЛ</div><div class="demo-val" id="mcGender" style="color:var(--sub)">—</div></div>
+      <div class="demo-card"><div class="demo-ico">👓</div><div class="demo-lbl">ЧЕРТЫ</div><div class="demo-val" id="mcFeatures" style="color:var(--sub)">—</div></div>
+    </div>
+    <div class="mc-status"><div class="mc-dot" id="mcDot"></div><span id="mcStatusTxt">Native AI Engine · ожидание</span></div>
+    <div class="sh">Агент</div>
+    <div class="ag" id="agBlock">
+      <div class="ag-h"><span class="ag-t" id="agT">Система готова</span><span class="ag-b b-in" id="agB">ОЖИДАНИЕ</span></div>
+      <div class="ag-x" id="agX">Запустите камеру для анализа эмоций.</div>
+      <div class="ag-btns" id="agBtns"></div>
+    </div>
+    <div class="sh">Сглаживание 10 кадров</div>
+    <div class="sc-wrap"><div class="sc-cells" id="scCells"></div></div>
+    <div class="sh">Журнал</div>
+    <div class="log-block"><div class="log-list" id="logList"><div style="font-size:10px;color:var(--dim);text-align:center;padding:8px">Нет событий</div></div></div>
+  </div>
+
+  <!-- TAB 1: MICRO -->
+  <div class="tp" id="tp1">
+    <div class="sh">Калибровка базлайна</div>
+    <div class="calib-block">
+      <div class="calib-title">НЕЙТРАЛЬНЫЙ БАЗЛАЙН</div>
+      <div class="calib-bar-wrap"><div class="calib-bar" id="calibBar"></div></div>
+      <div class="calib-txt" id="calibTxt">Запустите камеру — система запомнит нейтральное лицо (8 сек)</div>
+      <div class="calib-status"><div class="calib-dot" id="calibDot"></div><span style="font-family:var(--mono);font-size:9px;color:var(--sub)" id="calibLabel">НЕ АКТИВНО</span></div>
+    </div>
+    <div class="sh">Флуктуации зон лица</div>
+    <div class="zones-grid" id="zonesGrid"></div>
+    <div class="sh">Временная диаграмма · дельта от базлайна</div>
+    <div class="micro-timeline">
+      <div class="mt-hdr"><span class="mt-title">DELTA · 60 КАДРОВ</span><span class="mt-fps" id="mtFps">— fps</span></div>
+      <div class="mt-canvas-wrap"><canvas id="microCanvas" height="60"></canvas></div>
+      <div class="mt-legend">
+        <div class="mt-leg"><div class="mt-dot" style="background:#ffc930"></div>Брови</div>
+        <div class="mt-leg"><div class="mt-dot" style="background:#00c8ff"></div>Рот</div>
+        <div class="mt-leg"><div class="mt-dot" style="background:#ff4560"></div>Нос</div>
+        <div class="mt-leg"><div class="mt-dot" style="background:#00f090"></div>Глаза</div>
+      </div>
+    </div>
+    <div class="sh">NativeAI · Arousal-Valence Circumplex</div>
+    <div class="av-panel">
+      <div class="av-title">CIRCUMPLEX MODEL · 2D ЭМОЦИОНАЛЬНОЕ ПРОСТРАНСТВО</div>
+      <div class="av-canvas-wrap"><canvas id="avCanvas" width="176" height="176"></canvas></div>
+      <div class="av-quadrants">
+        <div class="av-q" id="avQ1"><div class="av-q-name" style="color:#ff4560">ВОЗБУЖД/НЕГАТИВ</div><div class="av-q-val" id="avQ1v" style="color:#ff4560">—</div><div class="av-q-desc">злость, страх, стресс</div></div>
+        <div class="av-q" id="avQ2"><div class="av-q-name" style="color:#00f090">ВОЗБУЖД/ПОЗИТИВ</div><div class="av-q-val" id="avQ2v" style="color:#00f090">—</div><div class="av-q-desc">радость, интерес, желание</div></div>
+        <div class="av-q" id="avQ3"><div class="av-q-name" style="color:#607090">СПОКОЕН/НЕГАТИВ</div><div class="av-q-val" id="avQ3v" style="color:#607090">—</div><div class="av-q-desc">грусть, скука, усталость</div></div>
+        <div class="av-q" id="avQ4"><div class="av-q-name" style="color:#00c8ff">СПОКОЕН/ПОЗИТИВ</div><div class="av-q-val" id="avQ4v" style="color:#00c8ff">—</div><div class="av-q-desc">доволен, расслаблен, готов</div></div>
+      </div>
+    </div>
+    <div class="sh">Обнаруженные микровыражения</div>
+    <div class="micro-events"><div class="me-list" id="meList"><div style="font-size:10px;color:var(--dim);text-align:center;padding:8px">Ожидание...</div></div></div>
+  </div>
+
+  <!-- TAB 2: PROFILE -->
+  <div class="tp" id="tp2">
+    <div class="sh">Вероятность покупки</div>
+    <div class="buy-block">
+      <div class="buy-ring"><svg viewBox="0 0 56 56" width="56" height="56"><circle class="r-bg" cx="28" cy="28" r="24"/><circle class="r-fg" id="ringFg" cx="28" cy="28" r="24" stroke="#00f090" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg></div>
+      <div class="buy-info"><div class="buy-lbl">ВЕРОЯТНОСТЬ ПОКУПКИ</div><div class="buy-pct" id="buyPct" style="color:var(--grn)">—</div><div class="buy-desc" id="buyDesc">Запустите анализ</div></div>
+    </div>
+    <div class="sh">Физиогномика · зоны</div>
+    <div class="face-map">
+      <div class="fm-title">АНАЛИЗ СТРУКТУРНЫХ ЗОН</div>
+      <div class="fm-zones" id="fmZones"></div>
+    </div>
+    <div class="sh">Характерологический профиль</div>
+    <div class="profile-card">
+      <div class="pc-hdr"><span class="pc-title" id="pcTitle">Ожидание</span><span class="pc-sub" id="pcSub">запустите камеру</span></div>
+      <div class="pc-traits" id="pcTraits"><div style="font-size:11px;color:var(--dim);text-align:center;padding:8px">Запустите камеру</div></div>
+    </div>
+    <div class="sh">Тактика общения</div>
+    <div class="tactic-box" id="tacticBox"><strong>ПЕРСОНАЛЬНАЯ ТАКТИКА</strong>Активируйте систему.</div>
+  </div>
+
+  <!-- WiFi Camera Manager -->
+  <div class="sh">WiFi Камеры</div>
+  <div class="wifi-panel" id="wifiPanel">
+    <div class="wifi-hdr">
+      <span class="wifi-title">📡 WiFi / IP КАМЕРЫ</span>
+      <button class="wifi-scan-btn" id="wifiScanBtn" onclick="wifiScan()">🔍 СКАНИРОВАТЬ</button>
+    </div>
+    <div class="wifi-cam-list" id="wifiCamList">
+      <div style="padding:12px 13px;font-family:var(--mono);font-size:8px;color:var(--dim)">
+        Нажмите СКАНИРОВАТЬ или добавьте URL вручную
+      </div>
+    </div>
+    <div class="wifi-add-row">
+      <input class="wifi-url-inp" id="wifiUrlInp" placeholder="192.168.1.xxx или rtsp://..." type="text">
+      <button class="wifi-add-btn" onclick="wifiAddManual()">+ ДОБАВИТЬ</button>
+    </div>
+    <div class="wifi-proto-row">
+      <button class="wifi-proto on" id="protoMJPEG" onclick="setProto('mjpeg',this)">MJPEG</button>
+      <button class="wifi-proto" id="protoRTSP" onclick="setProto('rtsp',this)">RTSP/WS</button>
+      <button class="wifi-proto" id="protoHLS" onclick="setProto('hls',this)">HLS</button>
+      <button class="wifi-proto" id="protoWEBRTC" onclick="setProto('webrtc',this)">WebRTC</button>
+    </div>
+  </div>
+  <div class="ctrl">
+    <button class="go-btn" id="btnGo" onclick="startSys()">▶ ЗАПУСТИТЬ АНАЛИЗ</button>
+    <button class="stop-btn" id="btnStop" onclick="stopSys()">■ ОСТАНОВИТЬ</button>
+  </div>
+</div>
+
+<!-- ══ RIGHT ══ -->
+<div class="right">
+  <div class="cam-box">
+    <div class="cam-ph" id="camPH"><div class="cam-ph-i">⚫</div><div class="cam-ph-t">КУПОЛЬНАЯ КАМЕРА</div><div class="cam-ph-s">Нажмите ЗАПУСТИТЬ<br>Hikvision DS-2CD2143G2-I</div></div>
+    <video id="vid" autoplay muted playsinline></video>
+    <canvas id="oc"></canvas>
+    <div class="scanline" id="scanLine"></div>
+    <div class="bk tl"></div><div class="bk tr"></div><div class="bk bl"></div><div class="bk br"></div>
+    <button class="mesh-btn" id="meshBtn" onclick="toggleMesh()">◈ 3D СЕТКА</button>
+    <button class="flip-cam-btn" onclick="flipCamera()"
+      style="position:absolute;top:7px;right:7px;z-index:10;
+      font-family:var(--mono);font-size:8px;padding:4px 11px;border-radius:3px;
+      border:1px solid rgba(0,200,255,.4);background:rgba(8,12,18,.85);color:var(--acc);
+      cursor:pointer;font-weight:700;min-height:30px;white-space:nowrap;">
+      🔄 ЗАДНЯЯ
+    </button>
+    <div class="cam-src-bar" id="camSrcBar">
+      <button class="csb-btn on" id="srcLocal" onclick="selectCamSrc('local')">📷 ВСТРОЕННАЯ</button>
+    </div>
+    <div class="hud-tl"><div class="pdot" id="recDot" style="background:var(--red)"></div><span id="camLbl">HIKVISION · DOME</span></div>
+    <div class="hud-tr" id="camFps">— fps</div>
+    <div class="hud-br" id="camRes">—×—</div>
+    <div class="ang-ov" id="angOv">⚠ YAW <span id="angVal">0°</span> — коррекция активна</div>
+    <div class="load-ov" id="loadOv"><div class="spin"></div><div class="load-msg" id="loadMsg">ИНИЦИАЛИЗАЦИЯ</div></div>
+  </div>
+  <div class="dome-bar">
+    <div class="dm"><div class="dm-b"><div class="dm-l"></div></div></div>
+    <div style="flex:1"><div class="dm-model">HIKVISION DS-2CD2143G2-I</div><div class="dm-spec">КУПОЛ · СТЕНА · 2.2М · 103° · WDR</div></div>
+    <div class="dm-badge">4MP · IR 40m</div>
+  </div>
+  <div class="pose-ax">
+    <div class="ax"><div class="ax-l">YAW</div><div class="ax-tr"><div class="ax-fi" id="gYaw" style="background:var(--acc);left:50%;width:0%"></div></div><div class="ax-v" id="vYaw" style="color:var(--acc)">0°</div></div>
+    <div class="ax"><div class="ax-l">PITCH</div><div class="ax-tr"><div class="ax-fi" id="gPitch" style="background:var(--acc);left:50%;width:0%"></div></div><div class="ax-v" id="vPitch" style="color:var(--acc)">0°</div></div>
+    <div class="ax"><div class="ax-l">УВЕРЕННОСТЬ</div><div class="ax-tr"><div class="ax-fi" id="gConf" style="background:var(--grn);left:0;width:0%"></div></div><div class="ax-v" id="vConf" style="color:var(--grn)">—</div></div>
+  </div>
+  <div class="live-zones">
+    <div class="lz-title">АКТИВНЫЕ ЗОНЫ · DELTA ОТ БАЗЛАЙНА</div>
+    <div class="lz-grid">
+      <div class="lz-cell"><div class="lz-ico">🤨</div><div class="lz-name">БРОВИ</div><div class="lz-val" id="lz_brow">+0.0</div></div>
+      <div class="lz-cell"><div class="lz-ico">👄</div><div class="lz-name">РОТ</div><div class="lz-val" id="lz_mouth">+0.0</div></div>
+      <div class="lz-cell"><div class="lz-ico">👃</div><div class="lz-name">НОС</div><div class="lz-val" id="lz_nose">+0.0</div></div>
+      <div class="lz-cell"><div class="lz-ico">👁</div><div class="lz-name">ГЛАЗА</div><div class="lz-val" id="lz_eye">+0.0</div></div>
+    </div>
+  </div>
+  <div class="deal-gauge" id="dealGauge">
+    <div class="dg-title">▸ ГОТОВНОСТЬ К СДЕЛКЕ</div>
+    <div class="dg-track"><div class="dg-cursor" id="dgCursor"></div></div>
+    <div class="dg-labels"><span>🔴 НЕ ГОТОВ</span><span>🟡 НЕЙТРАЛЬНО</span><span>🟢 ГОТОВ</span></div>
+    <div class="dg-score">
+      <div class="dg-num" id="dgNum" style="color:var(--sub)">—</div>
+      <div class="dg-verdict" id="dgVerdict" style="color:var(--sub)">Ожидание данных</div>
+      <div class="dg-sub" id="dgSub">Запустите камеру</div>
+    </div>
+    <div class="dg-factors">
+      <div class="dg-f"><div class="dg-f-name">ЭМОЦИЯ</div><div class="dg-f-val" id="df_emo" style="color:var(--dim)">—</div><div class="dg-f-bar"><div class="dg-f-fill" id="dfb_emo" style="width:0%;background:var(--acc)"></div></div></div>
+      <div class="dg-f"><div class="dg-f-name">ВНИМАНИЕ</div><div class="dg-f-val" id="df_att" style="color:var(--dim)">—</div><div class="dg-f-bar"><div class="dg-f-fill" id="dfb_att" style="width:0%;background:var(--yel)"></div></div></div>
+      <div class="dg-f"><div class="dg-f-name">ОТКРЫТОСТЬ</div><div class="dg-f-val" id="df_open" style="color:var(--dim)">—</div><div class="dg-f-bar"><div class="dg-f-fill" id="dfb_open" style="width:0%;background:var(--grn)"></div></div></div>
+      <div class="dg-f"><div class="dg-f-name">НАПРЯЖ.</div><div class="dg-f-val" id="df_tens" style="color:var(--dim)">—</div><div class="dg-f-bar"><div class="dg-f-fill" id="dfb_tens" style="width:0%;background:var(--red)"></div></div></div>
+      <div class="dg-f"><div class="dg-f-name">НАМЕРЕНИЕ</div><div class="dg-f-val" id="df_wish" style="color:var(--dim)">—</div><div class="dg-f-bar"><div class="dg-f-fill" id="dfb_wish" style="width:0%;background:var(--pur)"></div></div></div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"><div class="toast-t" id="toastT"></div><div class="toast-b" id="toastB"></div></div>
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
+const SMOOTH_N=10, YAW_WARN=32, YAW_LOW=50;
+const CALIB_FRAMES=24, MICRO_THR=2.8, HIST_LEN=60;
+
+const EMETA={
+  happy:{e:'😊',n:'Радость',c:'#00f090'},angry:{e:'😠',n:'Злость',c:'#ff4560'},
+  sad:{e:'😢',n:'Грусть',c:'#00c8ff'},surprised:{e:'😲',n:'Удивление',c:'#ffc930'},
+  neutral:{e:'😐',n:'Нейтраль',c:'#4a5e80'},fearful:{e:'😨',n:'Страх',c:'#b06aff'},
+  disgusted:{e:'🤢',n:'Отвращение',c:'#b06aff'}
+};
+
+const MODES={
+  shop:{
+    happy:{t:'Клиент доволен — upsell момент',x:'Предложите сопутствующий товар или карту лояльности.',c:'good',b:[['💳 Карта','p'],['🎁 Доп. товар','']]},
+    angry:{t:'Клиент раздражён — срочно',x:'Уточните причину. Предложите решение или менеджера.',c:'alert',b:[['🚨 Менеджер','p'],['💰 Скидка','']]},
+    sad:{t:'Клиент расстроен',x:'Уточните ситуацию участливо.',c:'warn',b:[['🤝 Уточнить','p'],['🔄 Замена','']]},
+    surprised:{t:'Клиент удивлён',x:'Расскажите детали товара или акции.',c:'good',b:[['ℹ️ Рассказать','p'],['⭐ Похожие','']]},
+    neutral:{t:'Клиент принимает решение',x:'Не торопите. Отвечайте чётко.',c:'',b:[['📋 Помочь',''],['⏳ Ожидать','']]},
+    disgusted:{t:'Негативная реакция',x:'Предложите альтернативу без давления.',c:'alert',b:[['🔄 Альтернатива','p'],['📞 Менеджер','']]},
+    fearful:{t:'Клиент в тревоге',x:'Снизьте темп. Расскажите о гарантии.',c:'warn',b:[['🛡 Гарантия','p'],['😌 Успокоить','']]}
+  },
+  cafe:{
+    happy:{t:'Гость доволен',x:'Предложите десерт или попросите отзыв.',c:'good',b:[['☕ Ещё','p'],['⭐ Отзыв','']]},
+    angry:{t:'Гость недоволен',x:'Уточните проблему. Исправьте сейчас.',c:'alert',b:[['🚨 Срочно','p'],['🔄 Переделать','']]},
+    sad:{t:'Гость расстроен',x:'Проявите участие, предложите комплимент.',c:'warn',b:[['💬 Поговорить','p'],['🎁 Комплимент','']]},
+    surprised:{t:'Гость впечатлён',x:'Расскажите о составе или шефе.',c:'good',b:[['📖 Рассказать','p'],['📱 Меню','']]},
+    neutral:{t:'Гость выбирает',x:'Предложите хит дня.',c:'',b:[['⭐ Хит дня',''],['⏳ Ожидать','']]},
+    disgusted:{t:'Проблема с блюдом',x:'Предложите замену без вопросов.',c:'alert',b:[['❓ Уточнить','p'],['🔄 Заменить','']]},
+    fearful:{t:'Гость нерешителен',x:'Предложите 1–2 популярных варианта.',c:'warn',b:[['💡 Посоветовать','p'],['📋 Меню','']]}
+  },
+  wash:{
+    happy:{t:'Доволен результатом',x:'Предложите абонемент.',c:'good',b:[['🎫 Абонемент','p'],['⭐ Отзыв','']]},
+    angry:{t:'Недоволен',x:'Срочно выясните причину.',c:'alert',b:[['🚨 Администратор','p'],['🔄 Перемыть','']]},
+    sad:{t:'Расстроен',x:'Предложите доп. услугу.',c:'warn',b:[['🤝 Уточнить','p'],['🎁 Компенсация','']]},
+    surprised:{t:'Удивлён качеством',x:'Предложите карту клиента.',c:'good',b:[['💳 Карта','p'],['💬 Поговорить','']]},
+    neutral:{t:'Ожидает авто',x:'Предложите кофе или акции.',c:'',b:[['☕ Кофе',''],['📋 Акции','']]},
+    disgusted:{t:'Претензия к качеству',x:'Проверьте автомобиль.',c:'alert',b:[['🔍 Проверить','p'],['💰 Скидка','']]},
+    fearful:{t:'Беспокоится за авто',x:'Успокойте, объясните процесс.',c:'warn',b:[['😌 Успокоить','p'],['📸 Показать','']]}
+  },
+  bank:{
+    happy:{t:'Доволен — момент продаж',x:'Предложите кредит, вклад или страховку.',c:'good',b:[['💰 Продукт','p'],['⭐ Оценка','']]},
+    angry:{t:'Раздражён',x:'Уточните причину. Исправьте.',c:'alert',b:[['🚨 Супервайзер','p'],['📋 Уточнить','']]},
+    sad:{t:'Расстроен',x:'Предложите консультацию.',c:'warn',b:[['💬 Консультация','p'],['🤝 Уточнить','']]},
+    surprised:{t:'Удивлён условиями',x:'Завершите сделку сейчас.',c:'good',b:[['✍️ Оформить','p'],['📄 Подробнее','']]},
+    neutral:{t:'Изучает условия',x:'Дайте время, будьте доступны.',c:'',b:[['📋 Ответить',''],['⏳ Ожидать','']]},
+    disgusted:{t:'Недоволен условиями',x:'Предложите альтернативный продукт.',c:'alert',b:[['🔄 Альтернатива','p'],['👔 Менеджер','']]},
+    fearful:{t:'Боится ошибиться',x:'Развейте риски: гарантия, страхование.',c:'warn',b:[['🛡 Гарантии','p'],['📖 Объяснить','']]}
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+var ST={
+  running:false,demo:false,modelsLoaded:false,
+  stream:null,interval:null,mode:'shop',
+  frames:0,alerts:0,posCount:0,
+  smoothBuf:[],lastAlert:0,demoIdx:0,
+  fpsTime:0,fpsCount:0,fps:0,
+  baseline:null,calibFrames:0,
+  calibSums:{brow:0,mouth:0,nose:0,eye:0,nasolabial:0},
+  calibDone:false,
+  microHistory:{brow:[],mouth:[],nose:[],eye:[]},
+  totalMicro:0,lastMicroCheck:0,
+  profileData:null
+};
+
+// NativeAI state — separate object
+var MC={
+  running:false,stopFn:null,
+  arousal:0,valence:0,attention:0,positivity:50,
+  age:null,gender:null,wishScore:50,
+  avHistory:[]
+};
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+setInterval(function(){
+  document.getElementById('clock').textContent=
+    new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+},1000);
+
+(function initZones(){
+  var defs=[
+    {id:'brow',name:'Брови',ico:'🤨',color:'#ffc930'},
+    {id:'mouth',name:'Рот/губы',ico:'👄',color:'#00c8ff'},
+    {id:'nose',name:'Нос',ico:'👃',color:'#ff4560'},
+    {id:'eye',name:'Глаза',ico:'👁',color:'#00f090'},
+    {id:'nasola',name:'Носогубная',ico:'😶',color:'#b06aff'},
+    {id:'chin',name:'Подбородок',ico:'🫠',color:'#ff7a30'}
+  ];
+  var g=document.getElementById('zonesGrid');
+  g.innerHTML=defs.map(function(z){
+    return '<div class="zone-card" id="zc_'+z.id+'">'
+      +'<div class="zone-name">'+z.ico+' '+z.name+'</div>'
+      +'<div class="zone-val" id="zv_'+z.id+'" style="color:'+z.color+'">+0.0</div>'
+      +'<div class="zone-spark" id="zs_'+z.id+'"></div>'
+      +'<div class="zone-trend" id="zt_'+z.id+'">— нет данных</div>'
+      +'</div>';
+  }).join('');
+
+  var fm=document.getElementById('fmZones');
+  fm.innerHTML=[
+    {ico:'🤨',n:'Лоб/брови',id:'fm_brow'},{ico:'👁',n:'Глаза',id:'fm_eye'},
+    {ico:'👃',n:'Нос',id:'fm_nose'},{ico:'😶',n:'Носогубная',id:'fm_nasolabial'},
+    {ico:'👄',n:'Рот',id:'fm_mouth'},{ico:'🫠',n:'Подбородок',id:'fm_chin'}
+  ].map(function(z){
+    return '<div class="fmz"><div class="fmz-ico">'+z.ico+'</div>'
+      +'<div class="fmz-name">'+z.n+'</div>'
+      +'<div class="fmz-val" id="'+z.id+'" style="color:var(--sub)">—</div></div>';
+  }).join('');
+
+  var sc=document.getElementById('scCells');
+  for(var i=0;i<SMOOTH_N;i++){
+    var c=document.createElement('div');c.className='sc';
+    c.style.cssText='height:3px;background:var(--b2);';sc.appendChild(c);
+  }
+
+  setTimeout(function(){drawAVCircumplex(0,0);},600);
+})();
+
+// ═══════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════
+function switchTab(idx,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('on');});
+  el.classList.add('active');
+  document.getElementById('tp'+idx).classList.add('on');
+}
+
+// ═══════════════════════════════════════════════════
+// START / STOP
+// ═══════════════════════════════════════════════════
+async function startSys(){
+  var btn=document.getElementById('btnGo');btn.disabled=true;
+  var lo=document.getElementById('loadOv'),lm=document.getElementById('loadMsg');
+  lo.classList.add('on');lm.textContent='ЗАПРОС КАМЕРЫ...';
+  try{
+    ST.stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:ST.facing}});
+    var vid=document.getElementById('vid');
+    vid.srcObject=ST.stream;vid.style.display='block';
+    document.getElementById('camPH').style.display='none';
+    document.getElementById('oc').style.display='block';
+    lm.textContent='ЗАГРУЗКА НЕЙРОСЕТИ...';
+    if(!ST.modelsLoaded){await loadModels(lm);ST.modelsLoaded=true;}
+    await new Promise(function(r){vid.addEventListener('loadeddata',r,{once:true});});
+    var s=ST.stream.getVideoTracks()[0].getSettings();
+    document.getElementById('camRes').textContent=(s.width||'—')+'×'+(s.height||'—');
+    document.getElementById('camLbl').textContent='HIKVISION · LIVE';
+    lo.classList.remove('on');
+    document.getElementById('btnGo').style.display='none';
+    document.getElementById('btnStop').style.display='block';
+    document.getElementById('scanLine').classList.add('on');
+    document.getElementById('statusPill').className='pill live';
+    document.getElementById('statusTxt').textContent='LIVE';
+    document.getElementById('recDot').style.animation='blink 1s infinite';
+    ST.running=true;ST.demo=false;
+    ST.interval=setInterval(mainLoop,320);
+    startCalib();
+    addLog('🟢','Система активна — анализ начат','l');
+    showToast('ok','🟢 DomeMind PRO','Камера запущена');
+    // Start NativeAI after short delay
+    setTimeout(startNativeAI,1500);
+  }catch(e){
+    lo.classList.remove('on');btn.disabled=false;
+    showToast('warn','📽 Демо режим','Камера недоступна');
+    startDemo();
+  }
+}
+
+async function loadModels(lmEl){
+  var urls=[
+    'https://cdnjs.cloudflare.com/ajax/libs/face-api.js/0.22.2/weights',
+    'https://justadudewhohacks.github.io/face-api.js/weights'
+  ];
+  for(var i=0;i<urls.length;i++){
+    try{
+      lmEl.textContent='TinyFaceDetector...';
+      await faceapi.nets.tinyFaceDetector.loadFromUri(urls[i]);
+      lmEl.textContent='FaceLandmarks68...';
+      await faceapi.nets.faceLandmark68TinyNet.loadFromUri(urls[i]);
+      lmEl.textContent='FaceExpressions...';
+      await faceapi.nets.faceExpressionNet.loadFromUri(urls[i]);
+      return;
+    }catch(e){continue;}
+  }
+}
+
+function stopSys(){
+  ST.running=false;ST.demo=false;clearInterval(ST.interval);
+  if(ST.stream){ST.stream.getTracks().forEach(function(t){t.stop();});ST.stream=null;}
+  var vid=document.getElementById('vid');vid.style.display='none';vid.srcObject=null;
+  document.getElementById('oc').style.display='none';
+  document.getElementById('camPH').style.display='flex';
+  document.getElementById('btnGo').style.display='block';
+  document.getElementById('btnGo').disabled=false;
+  document.getElementById('btnStop').style.display='none';
+  document.getElementById('scanLine').className='scanline';
+  document.getElementById('statusPill').className='pill';
+  document.getElementById('statusTxt').textContent='STANDBY';
+  stopNativeAI();
+  resetCalib();
+  addLog('🔴','Система остановлена','l');
+}
+
+// ═══════════════════════════════════════════════════
+// CALIBRATION
+// ═══════════════════════════════════════════════════
+function startCalib(){
+  ST.calibFrames=0;ST.calibDone=false;ST.baseline=null;
+  ST.calibSums={brow:0,mouth:0,nose:0,eye:0,nasolabial:0};
+  document.getElementById('calibDot').className='calib-dot running';
+  document.getElementById('calibLabel').textContent='КАЛИБРОВКА...';
+}
+
+function resetCalib(){
+  ST.calibFrames=0;ST.calibDone=false;ST.baseline=null;
+  document.getElementById('calibBar').style.width='0%';
+  document.getElementById('calibDot').className='calib-dot';
+  document.getElementById('calibLabel').textContent='НЕ АКТИВНО';
+  document.getElementById('calibTxt').textContent='Запустите камеру — система запомнит нейтральное лицо (8 сек)';
+}
+
+function feedCalib(zones){
+  if(ST.calibDone)return;
+  ST.calibFrames++;
+  Object.keys(ST.calibSums).forEach(function(k){if(zones[k]!==undefined)ST.calibSums[k]+=zones[k];});
+  var pct=Math.round(ST.calibFrames/CALIB_FRAMES*100);
+  document.getElementById('calibBar').style.width=pct+'%';
+  document.getElementById('calibTxt').textContent='Калибровка: '+pct+'% — сохраните нейтральное выражение';
+  if(ST.calibFrames>=CALIB_FRAMES){
+    ST.baseline={};
+    Object.keys(ST.calibSums).forEach(function(k){ST.baseline[k]=ST.calibSums[k]/ST.calibFrames;});
+    ST.calibDone=true;
+    document.getElementById('calibDot').className='calib-dot ready';
+    document.getElementById('calibLabel').textContent='БАЗЛАЙН ГОТОВ ✓';
+    document.getElementById('calibTxt').textContent='Нейтральное лицо запомнено. Отслеживаю отклонения.';
+    addLog('📐','Базлайн откалиброван','l');
+    showToast('ok','✓ Базлайн готов','Микровыражения активны');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// LANDMARK ZONE EXTRACTION
+// ═══════════════════════════════════════════════════
+function extractZones(lm,faceH){
+  if(!lm||lm.length<68)return null;
+  var n=function(v){return v/faceH;};
+  var lBY=(lm[17].y+lm[18].y+lm[19].y+lm[20].y+lm[21].y)/5;
+  var rBY=(lm[22].y+lm[23].y+lm[24].y+lm[25].y+lm[26].y)/5;
+  var lEY=(lm[36].y+lm[37].y+lm[38].y+lm[39].y+lm[40].y+lm[41].y)/6;
+  var rEY=(lm[42].y+lm[43].y+lm[44].y+lm[45].y+lm[46].y+lm[47].y)/6;
+  var brow=n(((lEY-lBY)+(rEY-rBY))/2);
+  var mH=n((lm[57].y-lm[50].y+lm[56].y-lm[51].y)/2);
+  var mW=n(lm[54].x-lm[48].x);
+  var mCY=(lm[50].y+lm[52].y)/2;
+  var mCorner=n((mCY-lm[48].y+mCY-lm[54].y)/2);
+  var mouth=mH*0.5+mW*0.3+mCorner*0.2;
+  var nBW=n(Math.abs(lm[31].x-lm[35].x));
+  var nH=n(lm[33].y-lm[27].y);
+  var nose=nBW*0.6+nH*0.4;
+  var lEH=n((lm[37].y+lm[38].y)/2-(lm[40].y+lm[41].y)/2);
+  var rEH=n((lm[43].y+lm[44].y)/2-(lm[46].y+lm[47].y)/2);
+  var lEW=n(lm[39].x-lm[36].x);
+  var rEW=n(lm[45].x-lm[42].x);
+  var eye=(Math.abs(lEH)/lEW+Math.abs(rEH)/rEW)/2;
+  var lN=n(Math.sqrt(Math.pow(lm[31].x-lm[48].x,2)+Math.pow(lm[31].y-lm[48].y,2)));
+  var rN=n(Math.sqrt(Math.pow(lm[35].x-lm[54].x,2)+Math.pow(lm[35].y-lm[54].y,2)));
+  var nasolabial=(lN+rN)/2;
+  return{
+    brow:brow,mouth:mouth,nose:nose,eye:eye,nasolabial:nasolabial,
+    browAsymm:Math.abs(lBY-rBY)/faceH,
+    eyeAsymm:Math.abs(lEH-rEH)/(lEH+rEH+.001),
+    mouthCorner:mCorner,mouthWidth:mW,noseWidth:nBW,nasoBias:Math.abs(lN-rN),
+    browRaw:brow,eyeRaw:eye,mouthRaw:mouth
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// HEAD POSE
+// ═══════════════════════════════════════════════════
+function calcPose(lm,W,H){
+  if(!lm||lm.length<68)return{yaw:0,pitch:0};
+  var nose=lm[30],lE=lm[36],rE=lm[45],chin=lm[8];
+  var lD=Math.abs(nose.x-lE.x),rD=Math.abs(rE.x-nose.x),tot=lD+rD;
+  var yaw=tot>0?(rD-lD)/tot*85:0;
+  var eyeMY=(lE.y+rE.y)/2,fMY=(eyeMY+chin.y)/2;
+  var pitch=((nose.y-fMY)/(H*.08))*35;
+  return{yaw:Math.max(-85,Math.min(85,yaw)),pitch:Math.max(-40,Math.min(40,pitch))};
+}
+
+// ═══════════════════════════════════════════════════
+// MAIN DETECTION LOOP
+// ═══════════════════════════════════════════════════
+async function mainLoop(){
+  if(!ST.running||ST.demo)return;
+  var vid=document.getElementById('vid'),cvs=document.getElementById('oc');
+  if(vid.readyState<2)return;
+  cvs.width=vid.videoWidth||640;cvs.height=vid.videoHeight||480;
+  var ctx=cvs.getContext('2d');ctx.clearRect(0,0,cvs.width,cvs.height);
+  try{
+    var dets=await faceapi.detectAllFaces(vid,new faceapi.TinyFaceDetectorOptions({scoreThreshold:.35}))
+      .withFaceLandmarks(true).withFaceExpressions();
+    if(dets.length>0){
+      var det=dets[0],expr=det.expressions,lm=det.landmarks.positions,box=det.detection.box;
+      var pose=calcPose(lm,cvs.width,cvs.height);
+      var absYaw=Math.abs(pose.yaw);
+      var w=absYaw>YAW_LOW?.38:absYaw>YAW_WARN?.65+(YAW_LOW-absYaw)/(YAW_LOW-YAW_WARN)*.25:1.0;
+      var q=absYaw>YAW_LOW?'low':absYaw>YAW_WARN?'mid':'high';
+      var entries=Object.entries(expr).sort(function(a,b){return b[1]-a[1];});
+      var dom=entries[0][0];
+      var cp=(Math.min(.99,expr[dom]*w)*100).toFixed(0);
+      var zones=extractZones(lm,box.height);
+      // Native AV computation from landmarks
+      var av=computeNativeAV(zones,expr,pose);
+      ST.arousal=av.a;ST.valence=av.v;ST.attention=av.attention;
+      ST.positivity=av.positivity;ST.wishType=av.wishType;ST.wishScore=av.wishConf||60;
+      drawFace(ctx,box,lm,dom,cp,q,pose,zones);
+      updateEmotionUI(expr,dom,cp,q,pose,absYaw);
+      updateAVUI();
+      updateWishUI();
+      smoothPush(dom);
+      if(zones&&!ST.calibDone)feedCalib(zones);
+      if(zones&&ST.calibDone)processMicro(zones);
+      if(zones&&ST.frames%3===0)updateProfile(zones,dom,expr);
+      ST.fpsCount++;
+      var now=Date.now();
+      if(now-ST.fpsTime>1000){
+        ST.fps=ST.fpsCount;
+        document.getElementById('camFps').textContent=ST.fps+' fps';
+        document.getElementById('hFps').textContent=ST.fps;
+        ST.fpsCount=0;ST.fpsTime=now;
+        document.getElementById('mtFps').textContent=ST.fps+' fps';
+      }
+    }else{clearFaceUI();}
+    ST.frames++;document.getElementById('sF').textContent=ST.frames;
+  }catch(e){console.warn(e);}
+}
+
+// ═══════════════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════════════
+function drawFace(ctx,box,lm,dom,cp,q,pose,zones){
+  var m=EMETA[dom]||EMETA.neutral,aY=Math.abs(pose.yaw);
+  var col=q==='low'?'#ff4560':q==='mid'?'#ffc930':m.c;
+  ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.strokeRect(box.x,box.y,box.width,box.height);
+  var s=10,bx=box.x,by=box.y,bw=box.width,bh=box.height;
+  ctx.lineWidth=2.5;ctx.strokeStyle=col;
+  [[bx,by,1,1],[bx+bw,by,-1,1],[bx,by+bh,1,-1],[bx+bw,by+bh,-1,-1]].forEach(function(c){
+    ctx.beginPath();ctx.moveTo(c[0]+c[2]*s,c[1]);ctx.lineTo(c[0],c[1]);ctx.lineTo(c[0],c[1]+c[3]*s);ctx.stroke();
+  });
+  if(zones&&ST.calibDone&&ST.baseline){
+    var delta=getDeltas(zones);
+    ctx.setLineDash([3,2]);
+    if(Math.abs(delta.brow)>MICRO_THR*.6){ctx.strokeStyle='#ffc930';ctx.lineWidth=1.5;drawPoly(ctx,lm,[17,18,19,20,21]);drawPoly(ctx,lm,[22,23,24,25,26]);}
+    if(Math.abs(delta.mouth)>MICRO_THR*.6){ctx.strokeStyle='#00c8ff';ctx.lineWidth=1.5;drawPoly(ctx,lm,[48,49,50,51,52,53,54,55,56,57,58,59,48]);}
+    if(Math.abs(delta.nose)>MICRO_THR*.5){ctx.strokeStyle='#ff4560';ctx.lineWidth=1.5;drawPoly(ctx,lm,[27,28,29,30,31,32,33,34,35]);}
+    ctx.setLineDash([]);
+  }
+  ctx.fillStyle='rgba(0,200,255,.4)';
+  [[36,37,38,39,40,41],[42,43,44,45,46,47],[17,18,19,20,21],[22,23,24,25,26],[48,49,50,51,52,53,54,55,56,57,58,59]].forEach(function(g){
+    g.forEach(function(i){if(!lm[i])return;ctx.beginPath();ctx.arc(lm[i].x,lm[i].y,1.4,0,Math.PI*2);ctx.fill();});
+  });
+  ctx.font='bold 11px Share Tech Mono,monospace';ctx.fillStyle=col;
+  ctx.fillText(m.e+' '+cp+'%  YAW:'+pose.yaw.toFixed(0)+'°',box.x,box.y-6);
+}
+
+function drawPoly(ctx,pts,idxs){
+  ctx.beginPath();
+  idxs.forEach(function(i,j){if(!pts[i])return;j===0?ctx.moveTo(pts[i].x,pts[i].y):ctx.lineTo(pts[i].x,pts[i].y);});
+  ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════════
+// MICRO ANALYSIS
+// ═══════════════════════════════════════════════════
+function getDeltas(zones){
+  if(!ST.baseline)return{brow:0,mouth:0,nose:0,eye:0};
+  return{
+    brow:(zones.brow-ST.baseline.brow)*100,
+    mouth:(zones.mouth-ST.baseline.mouth)*100,
+    nose:(zones.nose-ST.baseline.nose)*100,
+    eye:(zones.eye-ST.baseline.eye)*100,
+    nasolabial:(zones.nasolabial-ST.baseline.nasolabial)*100
+  };
+}
+
+function processMicro(zones){
+  var delta=getDeltas(zones);
+  ['brow','mouth','nose','eye'].forEach(function(k){
+    ST.microHistory[k].push(delta[k]);
+    if(ST.microHistory[k].length>HIST_LEN)ST.microHistory[k].shift();
+  });
+  updateLiveZones(delta);
+  updateZoneCards(delta,zones);
+  drawMicroCanvas();
+  var now=Date.now();
+  if(now-ST.lastMicroCheck<600)return;
+  ST.lastMicroCheck=now;
+  var MEVTS=[
+    {zone:'BROW',key:'brow',pos:'Брови подняты — удивление/интерес',neg:'Брови нахмурены — злость/тревога',posI:'😲',negI:'😠',col:'#ffc930'},
+    {zone:'MOUTH',key:'mouth',pos:'Уголки рта вверх — подавленная радость',neg:'Уголки рта вниз — грусть/недовольство',posI:'😊',negI:'😔',col:'#00c8ff'},
+    {zone:'NOSE',key:'nose',pos:'Ноздри расширены — возбуждение',neg:'Носогубная складка — отвращение/злость',posI:'😤',negI:'🤢',col:'#ff4560'},
+    {zone:'EYE',key:'eye',pos:'Глаза широко — интерес/страх',neg:'Прищур — скептицизм/недоверие',posI:'👁',negI:'🤨',col:'#00f090'}
+  ];
+  MEVTS.forEach(function(ev){
+    var d=delta[ev.key];
+    if(Math.abs(d)>MICRO_THR){
+      var isPos=d>0;
+      addMicroEvent(ev.zone,isPos?ev.posI:ev.negI,isPos?ev.pos:ev.neg,Math.abs(d).toFixed(1),ev.col,isPos);
+      ST.totalMicro++;
+      document.getElementById('hMicro').textContent=ST.totalMicro;
+    }
+  });
+}
+
+function addMicroEvent(zone,ico,desc,mag,col,isPos){
+  var t=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var el=document.getElementById('meList');
+  if(el.querySelector('div[style]'))el.innerHTML='';
+  var r=document.createElement('div');r.className='me-row';
+  r.innerHTML='<span class="me-t">'+t+'</span>'
+    +'<span class="me-zone" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'44">'+zone+'</span>'
+    +'<span class="me-desc">'+desc+'</span>'
+    +'<span class="me-mag" style="color:'+(isPos?'var(--grn)':'var(--red)')+'">'+
+    (isPos?'+':'-')+mag+'</span>';
+  el.insertBefore(r,el.firstChild);
+  while(el.children.length>20)el.removeChild(el.lastChild);
+}
+
+function updateLiveZones(delta){
+  ['brow','mouth','nose','eye'].forEach(function(k){
+    var el=document.getElementById('lz_'+k);if(!el)return;
+    var v=delta[k]||0;
+    el.textContent=(v>=0?'+':'')+v.toFixed(1);
+    el.style.color=Math.abs(v)>MICRO_THR?'var(--red)':Math.abs(v)>MICRO_THR*.5?'var(--yel)':'var(--sub)';
+  });
+}
+
+function updateZoneCards(delta,zones){
+  var ZDEFS=[
+    {id:'brow',color:'#ffc930'},{id:'mouth',color:'#00c8ff'},
+    {id:'nose',color:'#ff4560'},{id:'eye',color:'#00f090'},
+    {id:'nasola',color:'#b06aff'},{id:'chin',color:'#ff7a30'}
+  ];
+  ZDEFS.forEach(function(z){
+    var d=delta[z.id]||0;
+    var vEl=document.getElementById('zv_'+z.id);
+    var tEl=document.getElementById('zt_'+z.id);
+    var sEl=document.getElementById('zs_'+z.id);
+    if(!vEl)return;
+    vEl.textContent=(d>=0?'+':'')+d.toFixed(1);
+    vEl.style.color=Math.abs(d)>MICRO_THR?'var(--red)':Math.abs(d)>MICRO_THR*.5?'var(--yel)':z.color;
+    var hist=ST.microHistory[z.id]||[];
+    if(hist.length>=3){
+      var a3=hist.slice(-3).reduce(function(a,b){return a+b;},0)/3;
+      var a6=hist.slice(-6).reduce(function(a,b){return a+b;},0)/Math.max(1,Math.min(6,hist.length));
+      tEl.textContent=a3>a6+.5?'↑ растёт':a3<a6-.5?'↓ снижается':'→ стабильно';
+    }
+    if(sEl&&hist.length>0){
+      var mx=Math.max.apply(null,hist.map(Math.abs));if(mx<.1)mx=.1;
+      sEl.innerHTML=hist.slice(-16).map(function(v){
+        var h=Math.max(2,Math.abs(v)/mx*26);
+        var c=v>MICRO_THR?'#ff4560':v>0?z.color:'#4a5e80';
+        return '<div class="zone-bar" style="height:'+h+'px;background:'+c+'"></div>';
+      }).join('');
+    }
+  });
+}
+
+function drawMicroCanvas(){
+  var cvs=document.getElementById('microCanvas');if(!cvs)return;
+  cvs.width=cvs.offsetWidth||320;
+  var ctx=cvs.getContext('2d'),W=cvs.width,H=60;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#1b2640';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  [0.25,0.5,0.75].forEach(function(p){ctx.beginPath();ctx.moveTo(0,H*p);ctx.lineTo(W,H*p);ctx.stroke();});
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  var lines=[{key:'brow',col:'#ffc930'},{key:'mouth',col:'#00c8ff'},{key:'nose',col:'#ff4560'},{key:'eye',col:'#00f090'}];
+  var maxAbs=8;
+  lines.forEach(function(ln){
+    var hist=ST.microHistory[ln.key];if(!hist||hist.length<2)return;
+    var n=Math.min(hist.length,HIST_LEN);
+    ctx.strokeStyle=ln.col;ctx.lineWidth=1.5;ctx.beginPath();
+    for(var i=0;i<n;i++){
+      var x=(i/(HIST_LEN-1))*W;
+      var y=H/2-(hist[hist.length-n+i]/maxAbs)*(H/2*.85);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  });
+  ctx.strokeStyle='rgba(255,69,96,.3)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+  var ty=H/2-(MICRO_THR/maxAbs)*(H/2*.85);
+  ctx.beginPath();ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,H-ty);ctx.lineTo(W,H-ty);ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ═══════════════════════════════════════════════════
+// AV CIRCUMPLEX
+// ═══════════════════════════════════════════════════
+function drawAVCircumplex(a,v){
+  var cvs=document.getElementById('avCanvas');if(!cvs)return;
+  var ctx=cvs.getContext('2d'),W=176,H=176,cx=W/2,cy=H/2,R=80;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#1b2640';ctx.fillRect(0,0,W,H);
+  [
+    {x:cx,y:0,w:cx,h:cy,c:'rgba(255,69,96,.08)'},
+    {x:0,y:0,w:cx,h:cy,c:'rgba(0,240,144,.08)'},
+    {x:cx,y:cy,w:cx,h:cy,c:'rgba(96,112,144,.07)'},
+    {x:0,y:cy,w:cx,h:cy,c:'rgba(0,200,255,.07)'}
+  ].forEach(function(q){ctx.fillStyle=q.c;ctx.fillRect(q.x,q.y,q.w,q.h);});
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.12)';
+  ctx.beginPath();ctx.moveTo(cx-R,cy);ctx.lineTo(cx+R,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-R);ctx.lineTo(cx,cy+R);ctx.stroke();
+  ctx.font='7px Share Tech Mono,monospace';ctx.fillStyle='rgba(255,255,255,.3)';
+  ctx.fillText('ПОЗИТИВ',cx+4,cy-2);ctx.fillText('НЕГАТИВ',cx-R+2,cy-2);
+  ctx.fillText('↑AROUSAL',cx+2,cy-R+10);ctx.fillText('VALENCE→',cx+R-46,cy+10);
+  MC.avHistory.push({a:a,v:v});
+  if(MC.avHistory.length>30)MC.avHistory.shift();
+  MC.avHistory.forEach(function(pt,i){
+    var alpha=(i/MC.avHistory.length)*0.45;
+    var px=cx+pt.v*R,py=cy-pt.a*R;
+    ctx.fillStyle='rgba(0,200,255,'+alpha+')';
+    ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fill();
+  });
+  var px=cx+v*R,py=cy-a*R;
+  var grad=ctx.createRadialGradient(px,py,0,px,py,14);
+  grad.addColorStop(0,'rgba(0,200,255,.5)');grad.addColorStop(1,'rgba(0,200,255,0)');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.arc(px,py,14,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#00c8ff';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.stroke();
+}
+
+// ═══════════════════════════════════════════════════
+// MORPHCAST ENGINE
+// ═══════════════════════════════════════════════════
+function computePositivity(a,v){
+  var angle=30*Math.PI/180;
+  var p=v*Math.cos(angle)+a*Math.sin(angle);
+  return Math.round((p+1)*50);
+}
+
+async function startNativeAI(){
+  // Pure native — no external SDK, no API key needed
+  // Arousal/Valence/Attention/Wish computed from face-api.js landmarks
+  document.getElementById('engDot').classList.add('on');
+  document.getElementById('engStatusTxt').textContent='Native AV Engine активен — без внешних зависимостей';
+  addLog('🧠','Native AI: AV·Attention·Wish·Age — вычислено по ландмаркам','l');
+  showToast('ok','🧠 Native AI активен','Без внешних API и ключей');
+}
+
+function stopNativeAI(){
+  if(MC.stopFn){try{MC.stopFn();}catch(e){}}
+  MC.running=false;
+  document.getElementById('mcDot').classList.remove('on');
+  document.getElementById('mcStatusTxt').textContent='Native AI Engine · остановлен';
+}
+
+// ── AV / Positivity UI ──
+function updateAVUI(){
+  var a=MC.arousal,v=MC.valence,pi=MC.positivity;
+  document.getElementById('piCursor').style.left=pi+'%';
+  var piCol=pi>60?'var(--grn)':pi>40?'var(--yel)':'var(--red)';
+  document.getElementById('piNum').textContent=pi;
+  document.getElementById('piNum').style.color=piCol;
+  document.getElementById('hPI').textContent=pi;
+  document.getElementById('hPI').style.color=piCol;
+  var aEl=document.getElementById('arousalNum');
+  aEl.textContent=(a>=0?'+':'')+a.toFixed(2);
+  aEl.style.color=Math.abs(a)>0.4?'var(--yel)':'var(--sub)';
+  document.getElementById('arousalLbl').textContent=a>0.3?'высокое':a<-0.3?'низкое':'нейтральное';
+  var vEl=document.getElementById('valenceNum');
+  vEl.textContent=(v>=0?'+':'')+v.toFixed(2);
+  vEl.style.color=v>0.2?'var(--grn)':v<-0.2?'var(--red)':'var(--sub)';
+  document.getElementById('valenceLbl').textContent=v>0.3?'позитивная':v<-0.3?'негативная':'нейтральная';
+  var q1=a>0&&v<0?Math.round(Math.sqrt(a*a+v*v)*70):0;
+  var q2=a>0&&v>0?Math.round(Math.sqrt(a*a+v*v)*70):0;
+  var q3=a<0&&v<0?Math.round(Math.sqrt(a*a+v*v)*70):0;
+  var q4=a<0&&v>0?Math.round(Math.sqrt(a*a+v*v)*70):0;
+  ['avQ1v','avQ2v','avQ3v','avQ4v'].forEach(function(id,i){
+    document.getElementById(id).textContent=[q1,q2,q3,q4][i]+'%';
+  });
+  var maxQ=Math.max(q1,q2,q3,q4);
+  ['avQ1','avQ2','avQ3','avQ4'].forEach(function(id,i){
+    var el=document.getElementById(id);
+    var active=[q1,q2,q3,q4][i]===maxQ&&maxQ>5;
+    el.style.background=active?'rgba(255,255,255,.05)':'var(--s3)';
+  });
+  drawAVCircumplex(a,v);
+  updateDealGauge();
+}
+
+// ── Attention UI ──
+function updateAttentionUI(){
+  var att=MC.attention,pct=Math.round(att*100);
+  var circ=138.2;
+  document.getElementById('attRing').style.strokeDashoffset=circ-(att*circ);
+  document.getElementById('attRing').style.stroke=att>0.6?'#00f090':att>0.35?'#ffc930':'#ff4560';
+  document.getElementById('attNum').textContent=pct+'%';
+  document.getElementById('attNum').style.color=att>0.6?'var(--grn)':att>0.35?'var(--yel)':'var(--red)';
+  document.getElementById('attLbl').textContent=att>0.7?'сфокусирован':att>0.4?'внимателен':att>0.2?'рассеян':'отвлечён';
+  document.getElementById('hAtt').textContent=pct+'%';
+  document.getElementById('hAtt').style.color=att>0.6?'var(--grn)':att>0.35?'var(--yel)':'var(--red)';
+}
+
+// ── Wish / Intent UI ──
+var WISH_META={
+  'positive':{ico:'✅',label:'Позитивное намерение',sub:'Склонен к положительному решению',col:'var(--grn)'},
+  'negative':{ico:'❌',label:'Негативное намерение',sub:'Сопротивление или отказ',col:'var(--red)'},
+  'interested':{ico:'👀',label:'Заинтересован',sub:'Хочет больше информации',col:'var(--acc)'},
+  'bored':{ico:'😑',label:'Скучает',sub:'Потерял интерес — смените подход',col:'var(--dim)'},
+  'undecided':{ico:'🤔',label:'Не решил',sub:'Взвешивает варианты — не торопите',col:'var(--yel)'},
+  'engaged':{ico:'🎯',label:'Вовлечён',sub:'Активно участвует — закрывайте сделку',col:'var(--grn)'}
+};
+
+function updateWishUI(wishType,conf){
+  var key=(wishType||'undecided').toLowerCase();
+  var meta=WISH_META[key]||WISH_META['undecided'];
+  document.getElementById('wishIco').textContent=meta.ico;
+  document.getElementById('wishLabel').textContent=meta.label;
+  document.getElementById('wishSub').textContent=meta.sub;
+  document.getElementById('wishConf').textContent=conf+'%';
+  document.getElementById('wishConf').style.color=meta.col;
+  document.getElementById('wishCard').style.borderColor=meta.col;
+  MC.wishScore=conf;
+  updateDealGauge();
+}
+
+// ── SIMULATE MORPHCAST ──
+function simulateNativeAI(){
+  document.getElementById('mcDot').classList.add('on');
+  MC.running=true;
+  var demoSeq=[
+    {a:0.2,v:0.5,att:0.85,wish:'engaged',conf:82},
+    {a:0.5,v:0.3,att:0.78,wish:'interested',conf:74},
+    {a:0.7,v:-0.2,att:0.65,wish:'undecided',conf:61},
+    {a:-0.1,v:0.6,att:0.90,wish:'positive',conf:88},
+    {a:-0.3,v:-0.1,att:0.55,wish:'bored',conf:58},
+    {a:0.4,v:0.7,att:0.92,wish:'engaged',conf:91},
+    {a:-0.5,v:0.2,att:0.70,wish:'positive',conf:76},
+    {a:0.6,v:-0.5,att:0.45,wish:'negative',conf:67},
+    {a:0.1,v:0.4,att:0.82,wish:'interested',conf:79},
+    {a:-0.2,v:0.8,att:0.95,wish:'positive',conf:93}
+  ];
+  var idx=0;
+  setInterval(function(){
+    var f=demoSeq[idx%demoSeq.length];idx++;
+    var noise=function(){return(Math.random()-.5)*.12;};
+    MC.arousal=Math.max(-1,Math.min(1,f.a+noise()));
+    MC.valence=Math.max(-1,Math.min(1,f.v+noise()));
+    MC.attention=Math.max(0,Math.min(1,f.att+noise()*.4));
+    MC.positivity=computePositivity(MC.arousal,MC.valence);
+    updateAVUI();
+    updateAttentionUI();
+    updateWishUI(f.wish,Math.round(f.conf+noise()*10));
+    if(!MC.age){
+      MC.age=28+Math.floor(Math.random()*20);
+      document.getElementById('mcAge').textContent=MC.age+' л';
+      document.getElementById('mcAge').style.color='var(--acc)';
+      var gEl=document.getElementById('mcGender');
+      gEl.textContent=Math.random()>.5?'♂ М':'♀ Ж';
+      gEl.style.color=Math.random()>.5?'#4fc3f7':'#f48fb1';
+      document.getElementById('mcFeatures').textContent=Math.random()>.7?'👓':'—';
+    }
+  },2200);
+}
+
+// ═══════════════════════════════════════════════════
+// DEAL READINESS GAUGE
+// ═══════════════════════════════════════════════════
+function updateDealGauge(){
+  var openness=50,tension=50,symmetry=70;
+  if(ST.profileData){
+    openness=ST.profileData.openness||50;
+    tension=ST.profileData.tension||50;
+    symmetry=ST.profileData.symmetry||70;
+  }
+  var emoScore=50;
+  try{
+    var emName=document.getElementById('emName').textContent;
+    if(emName==='Радость')emoScore=88;
+    else if(emName==='Удивление')emoScore=72;
+    else if(emName==='Нейтраль')emoScore=50;
+    else if(emName==='Грусть')emoScore=28;
+    else if(emName==='Злость')emoScore=12;
+    else if(emName==='Страх')emoScore=20;
+  }catch(e){}
+  var attScore=Math.round(MC.attention*100);
+  var wishScore=MC.wishScore||50;
+  var piBonus=MC.positivity>60?10:MC.positivity<35?-10:0;
+  var score=Math.min(99,Math.max(1,
+    emoScore*.25 + attScore*.20 + openness*.15 +
+    (100-tension)*.15 + symmetry*.10 + wishScore*.15 + piBonus
+  ));
+  var pct=score/100;
+  document.getElementById('dgCursor').style.left=(pct*100)+'%';
+  var col=score>=65?'#00f090':score>=45?'#ffc930':score>=30?'#ff8c00':'#ff1f3d';
+  document.getElementById('dgNum').textContent=score.toFixed(0);
+  document.getElementById('dgNum').style.color=col;
+  var verdict,sub;
+  if(score>=75){verdict='🟢 ЗАКЛЮЧАЙТЕ СДЕЛКУ';sub='Клиент открыт и заинтересован — действуйте прямо сейчас';}
+  else if(score>=60){verdict='🟢 ВЫСОКАЯ ГОТОВНОСТЬ';sub='Предложите конкретный вариант и ждите ответа';}
+  else if(score>=45){verdict='🟡 НЕЙТРАЛЬНАЯ ЗОНА';sub='Продолжайте разговор — не давите, слушайте';}
+  else if(score>=30){verdict='🟠 НИЗКАЯ ГОТОВНОСТЬ';sub='Присутствует сопротивление — найдите причину';}
+  else{verdict='🔴 НЕ ГОТОВ';sub='Негатив или тревога — сначала снимите напряжение';}
+  document.getElementById('dgVerdict').textContent=verdict;
+  document.getElementById('dgVerdict').style.color=col;
+  document.getElementById('dgSub').textContent=sub;
+  var facts=[
+    {id:'emo',val:emoScore,col:'#00c8ff'},
+    {id:'att',val:attScore,col:'#ffc930'},
+    {id:'open',val:openness,col:'#00f090'},
+    {id:'tens',val:100-tension,col:'#ff4560'},
+    {id:'wish',val:wishScore,col:'#b06aff'}
+  ];
+  facts.forEach(function(f){
+    var v=document.getElementById('df_'+f.id);
+    var b=document.getElementById('dfb_'+f.id);
+    if(v){v.textContent=f.val.toFixed(0)+'%';v.style.color=f.col;}
+    if(b){b.style.width=f.val+'%';b.style.background=f.col;}
+  });
+  var gauge=document.getElementById('dealGauge');
+  gauge.style.borderColor=col;
+  gauge.style.boxShadow='0 0 20px '+col+'44,inset 0 0 10px '+col+'0a';
+}
+
+// ═══════════════════════════════════════════════════
+// EMOTION UI
+// ═══════════════════════════════════════════════════
+function updateEmotionUI(expr,dom,cp,q,pose,absYaw){
+  var m=EMETA[dom]||EMETA.neutral;
+  document.getElementById('emIco').textContent=m.e;
+  document.getElementById('emName').textContent=m.n;
+  document.getElementById('emPct').textContent=cp+'%';
+  document.getElementById('emCard').className='em-card e-'+dom;
+  var qEl=document.getElementById('emQ');
+  if(q==='high'){qEl.className='em-q q-hi';qEl.textContent='ВЫСОКОЕ';}
+  else if(q==='mid'){qEl.className='em-q q-md';qEl.textContent='YAW '+absYaw.toFixed(0)+'°';}
+  else{qEl.className='em-q q-lo';qEl.textContent='YAW '+absYaw.toFixed(0)+'° НИЗКОЕ';}
+  var yp=Math.abs(pose.yaw)/85*50,gy=document.getElementById('gYaw');
+  gy.style.width=yp+'%';gy.style.left=(pose.yaw<0?50-yp:50)+'%';
+  gy.style.background=absYaw>YAW_LOW?'var(--red)':absYaw>YAW_WARN?'var(--yel)':'var(--acc)';
+  document.getElementById('vYaw').textContent=pose.yaw.toFixed(0)+'°';
+  document.getElementById('vYaw').style.color=absYaw>YAW_LOW?'var(--red)':absYaw>YAW_WARN?'var(--yel)':'var(--acc)';
+  document.getElementById('hYaw').textContent=pose.yaw.toFixed(0)+'°';
+  var pp=Math.abs(pose.pitch)/40*50,gp=document.getElementById('gPitch');
+  gp.style.width=pp+'%';gp.style.left=(pose.pitch<0?50-pp:50)+'%';
+  document.getElementById('vPitch').textContent=pose.pitch.toFixed(0)+'°';
+  document.getElementById('gConf').style.width=cp+'%';document.getElementById('vConf').textContent=cp+'%';
+  var cc=parseInt(cp);
+  document.getElementById('gConf').style.background=cc>65?'var(--grn)':cc>40?'var(--yel)':'var(--red)';
+  document.getElementById('vConf').style.color=cc>65?'var(--grn)':cc>40?'var(--yel)':'var(--red)';
+  document.getElementById('angVal').textContent=absYaw.toFixed(0)+'°';
+  document.getElementById('angOv').className='ang-ov'+(absYaw>YAW_WARN?' show':'');
+  Object.entries(expr).forEach(function(kv){
+    var pe=document.getElementById('pv_'+kv[0]),be=document.getElementById('pb_'+kv[0]);
+    if(pe)pe.textContent=Math.round(kv[1]*100)+'%';
+    if(be)be.style.width=Math.round(kv[1]*100)+'%';
+  });
+  if(['happy','surprised'].includes(dom))ST.posCount++;
+  document.getElementById('sP').textContent=ST.frames>10?Math.round(ST.posCount/ST.frames*100)+'%':'—';
+  updateDealGauge();
+}
+
+function clearFaceUI(){
+  document.getElementById('emIco').textContent='👤';
+  document.getElementById('emName').textContent='Лицо не найдено';
+  document.getElementById('emCard').className='em-card';
+  document.getElementById('angOv').className='ang-ov';
+}
+
+// ═══════════════════════════════════════════════════
+// SMOOTH + AGENT
+// ═══════════════════════════════════════════════════
+function smoothPush(emotion){
+  ST.smoothBuf.push(emotion);
+  if(ST.smoothBuf.length>SMOOTH_N)ST.smoothBuf.shift();
+  var cells=document.getElementById('scCells').children;
+  for(var i=0;i<SMOOTH_N;i++){
+    if(i<ST.smoothBuf.length){
+      cells[i].style.background=(EMETA[ST.smoothBuf[i]]||EMETA.neutral).c;
+      cells[i].style.height=(9+Math.random()*13)+'px';
+    }else{cells[i].style.background='var(--b2)';cells[i].style.height='3px';}
+  }
+  if(ST.smoothBuf.length>=4){
+    var counts={};
+    ST.smoothBuf.forEach(function(e){counts[e]=(counts[e]||0)+1;});
+    var dom=Object.entries(counts).sort(function(a,b){return b[1]-a[1];})[0][0];
+    triggerAgent(dom);
+  }
+}
+
+function triggerAgent(emotion){
+  var cfg=(MODES[ST.mode]||MODES.shop)[emotion]||MODES.shop.neutral;
+  document.getElementById('agBlock').className='ag '+(cfg.c||'');
+  document.getElementById('agT').textContent=cfg.t;
+  var bClass=cfg.c==='alert'?'b-al':cfg.c==='warn'?'b-wa':cfg.c==='good'?'b-go':'b-in';
+  var bTxt=cfg.c==='alert'?'🚨 ТРЕВОГА':cfg.c==='warn'?'⚠️ ВНИМАНИЕ':cfg.c==='good'?'✅ ПОЗИТИВ':'НЕЙТРАЛЬ';
+  document.getElementById('agB').className='ag-b '+bClass;
+  document.getElementById('agB').textContent=bTxt;
+  document.getElementById('agX').textContent=cfg.x;
+  var ab=document.getElementById('agBtns');ab.innerHTML='';
+  cfg.b.forEach(function(pair){
+    var btn=document.createElement('button');
+    btn.className='ag-btn'+(pair[1]==='p'?' p':'');
+    btn.textContent=pair[0];
+    btn.onclick=function(){addLog((EMETA[emotion]||EMETA.neutral).e,'Действие: '+pair[0],'l');showToast('ok','✅ '+pair[0],'Зафиксировано');};
+    ab.appendChild(btn);
+  });
+  if(['angry','disgusted'].includes(emotion)&&Date.now()-ST.lastAlert>8000){
+    ST.lastAlert=Date.now();ST.alerts++;
+    document.getElementById('sA').textContent=ST.alerts;
+    showToast('danger','🚨 '+cfg.t,cfg.x.slice(0,80));
+    addLog((EMETA[emotion]||EMETA.neutral).e,cfg.t,'h');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// PROFILE / PHYSIO
+// ═══════════════════════════════════════════════════
+function updateProfile(zones,dom,expr){
+  var j=function(v){return Math.min(99,Math.max(1,v+(Math.random()-.5)*8));};
+  var openness=j(zones.eyeRaw*200+zones.mouthRaw*100+zones.browRaw*80/3.8);
+  var tension=j(100-(zones.browRaw*150+zones.eyeRaw*120)/2.7);
+  var expressiveness=j((zones.browAsymm*300+zones.eyeAsymm*200+zones.mouthCorner*150)*1.5);
+  var symmetry=j(100-(zones.browAsymm+zones.eyeAsymm+zones.nasoBias)*200);
+  var dominance=j((zones.browRaw*180+zones.noseWidth*200)/3.8);
+  var analyticism=j(symmetry*.5+openness*.3+(100-expressiveness)*.2);
+  var buy=j(openness*.3+dominance*.2+expressiveness*.2+(100-tension)*.3);
+  ST.profileData={openness:openness,tension:tension,expressiveness:expressiveness,symmetry:symmetry,dominance:dominance,analyticism:analyticism,buy:buy};
+  var circ=150.8,fg=document.getElementById('ringFg');
+  fg.style.strokeDashoffset=circ-(buy/100)*circ;
+  fg.style.stroke=buy>60?'#00f090':buy>35?'#ffc930':'#ff4560';
+  document.getElementById('buyPct').textContent=buy.toFixed(0)+'%';
+  document.getElementById('buyPct').style.color=buy>60?'var(--grn)':buy>35?'var(--yel)':'var(--red)';
+  document.getElementById('buyDesc').textContent=buy>60?'Высокий — подойдите сейчас':buy>35?'Средний — наблюдайте':'Низкий — дайте время';
+  var fmD=[
+    {id:'fm_brow',v:zones.browRaw*100},{id:'fm_eye',v:zones.eyeRaw*100},
+    {id:'fm_nose',v:zones.noseWidth*100},{id:'fm_nasolabial',v:zones.nasolabial*100},
+    {id:'fm_mouth',v:zones.mouthWidth*100},{id:'fm_chin',v:symmetry}
+  ];
+  fmD.forEach(function(f){var el=document.getElementById(f.id);if(el)el.textContent=f.v.toFixed(0)+'%';});
+  var traits=[
+    {n:'Открытость',v:openness,c:'#00c8ff'},{n:'Напряжённость',v:tension,c:'#ff4560'},
+    {n:'Выразительность',v:expressiveness,c:'#ffc930'},{n:'Симметрия',v:symmetry,c:'#00f090'},
+    {n:'Доминантность',v:dominance,c:'#b06aff'},{n:'Аналитичность',v:analyticism,c:'#ff7a30'}
+  ];
+  document.getElementById('pcTraits').innerHTML=traits.map(function(t){
+    return '<div class="pct"><div class="pct-name">'+t.n+'</div>'
+      +'<div class="pct-track"><div class="pct-fill" style="width:'+t.v.toFixed(0)+'%;background:'+t.c+'"></div></div>'
+      +'<div class="pct-val" style="color:'+t.c+'">'+t.v.toFixed(0)+'%</div></div>';
+  }).join('');
+  var charType='Стандартный тип',charSub='сбалансированный профиль';
+  if(tension>70&&expressiveness<30){charType='Контролирующий тип';charSub='скрывает эмоции, рационален';}
+  else if(openness>70&&expressiveness>65){charType='Открытый экспрессивный';charSub='легко читать, реагирует явно';}
+  else if(analyticism>70&&tension<40){charType='Аналитик';charSub='нужны факты и доказательства';}
+  else if(dominance>70){charType='Доминантный тип';charSub='принимает решения самостоятельно';}
+  else if(tension>60&&openness<35){charType='Тревожный закрытый';charSub='нуждается в поддержке';}
+  document.getElementById('pcTitle').textContent=charType;
+  document.getElementById('pcSub').textContent=charSub;
+  document.getElementById('tacticBox').innerHTML='<strong>ПЕРСОНАЛЬНАЯ ТАКТИКА</strong>'+calcTactic(openness,tension,expressiveness,analyticism,dominance);
+  updateDealGauge();
+}
+
+function calcTactic(o,t,e,a,d){
+  if(t>70)return'⚡ <b>Клиент под давлением</b> — замедлите темп, не задавайте несколько вопросов подряд, говорите тихо и уверенно.';
+  if(a>70&&t<45)return'📊 <b>Аналитик</b> — говорите только фактами и цифрами. Дайте время изучить. Без давления.';
+  if(d>70&&o>55)return'🎯 <b>Доминантный</b> — перейдите к сути сразу. Предложите лучший вариант без предисловий.';
+  if(o>65&&e>60)return'🤝 <b>Открытый экспрессивный</b> — доброжелательный контакт, предлагайте сразу.';
+  if(o<35&&t>50)return'🚶 <b>Закрытый тревожный</b> — не давите. Открытые вопросы, паузы, безопасность.';
+  if(e<30)return'🔒 <b>Скрытный</b> — следите за микровыражениями. Косвенные вопросы. Не спешите.';
+  return'👍 <b>Сбалансированный</b> — активно слушайте, предложите 2 варианта на выбор, без давления.';
+}
+
+// ═══════════════════════════════════════════════════
+// LOG + TOAST + MODE
+// ═══════════════════════════════════════════════════
+function addLog(emoji,msg,sev){
+  var t=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var sc=sev==='h'?'s-h':sev==='m'?'s-m':'s-l';
+  var sl=sev==='h'?'ВАЖНО':sev==='m'?'ВНИМ.':'ИНФО';
+  var el=document.getElementById('logList');
+  if(el.querySelector('div[style]'))el.innerHTML='';
+  var r=document.createElement('div');r.className='lr';
+  r.innerHTML='<span class="lr-t">'+t+'</span><span class="lr-e">'+emoji+'</span>'
+    +'<span class="lr-m">'+msg+'</span><span class="lr-s '+sc+'">'+sl+'</span>';
+  el.insertBefore(r,el.firstChild);
+  while(el.children.length>20)el.removeChild(el.lastChild);
+}
+
+var _toastTm;
+function showToast(type,title,body){
+  var t=document.getElementById('toast');
+  t.style.borderLeftColor=type==='danger'?'var(--red)':type==='warn'?'var(--yel)':'var(--grn)';
+  document.getElementById('toastT').textContent=title;
+  document.getElementById('toastB').textContent=body;
+  t.classList.add('show');clearTimeout(_toastTm);
+  _toastTm=setTimeout(function(){t.classList.remove('show');},4500);
+}
+
+function setMode(m,el){
+  ST.mode=m;
+  document.querySelectorAll('.mbt').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  showToast('ok','Режим: '+el.textContent.trim(),'Агент настроен');
+}
+
+// ═══════════════════════════════════════════════════
+// DEMO MODE
+// ═══════════════════════════════════════════════════
+function startDemo(){
+  ST.running=true;ST.demo=true;
+  document.getElementById('btnGo').style.display='none';
+  document.getElementById('btnStop').style.display='block';
+  document.getElementById('scanLine').classList.add('on');
+  document.getElementById('statusPill').className='pill demo';
+  document.getElementById('statusTxt').textContent='ДЕМО';
+  document.getElementById('camPH').innerHTML=
+    '<div style="font-size:28px;opacity:.2">⚫</div>'
+    +'<div class="cam-ph-t" style="color:var(--yel)">ДЕМО РЕЖИМ</div>'
+    +'<div class="cam-ph-s">Симуляция · Hikvision DS-2CD2143G2-I<br>NativeAI + face-api.js</div>';
+  document.getElementById('camPH').style.display='flex';
+  addLog('🎭','Демо-режим запущен','l');
+  startNativeAI();
+  startCalib();
+  // Simulate calibration
+  setTimeout(function(){
+    ST.baseline={brow:.15,mouth:.25,nose:.45,eye:.18,nasolabial:.55};
+    ST.calibDone=true;
+    document.getElementById('calibBar').style.width='100%';
+    document.getElementById('calibDot').className='calib-dot ready';
+    document.getElementById('calibLabel').textContent='БАЗЛАЙН ГОТОВ ✓';
+    document.getElementById('calibTxt').textContent='Нейтральный базлайн загружен (демо).';
+    addLog('📐','Базлайн откалиброван (демо)','l');
+  },3000);
+  // Start NativeAI simulation
+  setTimeout(simulateNativeAI,3500);
+  var seq=[
+    {e:'neutral',yaw:5,c:72,micro:{brow:.15,mouth:.25,nose:.44,eye:.18}},
+    {e:'neutral',yaw:18,c:61,micro:{brow:.16,mouth:.24,nose:.46,eye:.17}},
+    {e:'happy',yaw:-8,c:83,micro:{brow:.22,mouth:.36,nose:.43,eye:.24}},
+    {e:'happy',yaw:12,c:79,micro:{brow:.20,mouth:.34,nose:.44,eye:.22}},
+    {e:'surprised',yaw:25,c:55,micro:{brow:.30,mouth:.40,nose:.42,eye:.32}},
+    {e:'neutral',yaw:38,c:42,micro:{brow:.15,mouth:.24,nose:.45,eye:.18}},
+    {e:'neutral',yaw:44,c:38,micro:{brow:.14,mouth:.23,nose:.46,eye:.17}},
+    {e:'neutral',yaw:20,c:63,micro:{brow:.13,mouth:.22,nose:.47,eye:.16}},
+    {e:'sad',yaw:8,c:74,micro:{brow:.10,mouth:.18,nose:.48,eye:.14}},
+    {e:'angry',yaw:-15,c:81,micro:{brow:.08,mouth:.16,nose:.52,eye:.13}},
+    {e:'angry',yaw:-22,c:73,micro:{brow:.07,mouth:.15,nose:.53,eye:.12}},
+    {e:'neutral',yaw:5,c:80,micro:{brow:.15,mouth:.25,nose:.45,eye:.18}},
+    {e:'happy',yaw:10,c:88,micro:{brow:.21,mouth:.35,nose:.43,eye:.23}},
+    {e:'happy',yaw:3,c:91,micro:{brow:.22,mouth:.37,nose:.42,eye:.25}}
+  ];
+  ST.interval=setInterval(function(){
+    var f=seq[ST.demoIdx%seq.length];ST.demoIdx++;
+    var aY=Math.abs(f.yaw),q=aY>YAW_LOW?'low':aY>YAW_WARN?'mid':'high';
+    var w=aY>YAW_LOW?.38:aY>YAW_WARN?.65:1.0;
+    var cp=Math.round(f.c*w);
+    var expr={};
+    ['happy','angry','sad','surprised','neutral','fearful','disgusted'].forEach(function(e){
+      expr[e]=e===f.e?f.c/100:Math.random()*.06;
+    });
+    updateEmotionUI(expr,f.e,cp,q,{yaw:f.yaw,pitch:(Math.random()-.5)*8},aY);
+    smoothPush(f.e);
+    if(ST.calibDone&&f.micro){
+      var dd={
+        brow:(f.micro.brow-ST.baseline.brow)*100,
+        mouth:(f.micro.mouth-ST.baseline.mouth)*100,
+        nose:(f.micro.nose-ST.baseline.nose)*100,
+        eye:(f.micro.eye-ST.baseline.eye)*100,
+        nasolabial:0
+      };
+      ['brow','mouth','nose','eye'].forEach(function(k){
+        ST.microHistory[k].push(dd[k]);
+        if(ST.microHistory[k].length>HIST_LEN)ST.microHistory[k].shift();
+      });
+      updateLiveZones(dd);
+      updateZoneCards(dd,{browAsymm:.02,eyeAsymm:.03,mouthCorner:f.micro.mouth-.25,mouthWidth:f.micro.mouth*.8,noseWidth:f.micro.nose*.6,nasoBias:.01});
+      drawMicroCanvas();
+      ['brow','mouth','nose','eye'].forEach(function(k){
+        if(Math.abs(dd[k])>MICRO_THR){
+          var ZMAP={brow:{pos:'Брови подняты',neg:'Брови нахмурены',posI:'😲',negI:'😠',col:'#ffc930'},
+            mouth:{pos:'Уголки рта вверх — скрытая радость',neg:'Уголки опущены — грусть',posI:'😊',negI:'😔',col:'#00c8ff'},
+            nose:{pos:'Ноздри расширены',neg:'Носогубная складка напряжена',posI:'😤',negI:'🤢',col:'#ff4560'},
+            eye:{pos:'Глаза широко открыты',neg:'Прищур — скептицизм',posI:'👁',negI:'🤨',col:'#00f090'}};
+          var z=ZMAP[k];if(!z)return;
+          var isPos=dd[k]>0;
+          addMicroEvent(k.toUpperCase(),isPos?z.posI:z.negI,isPos?z.pos:z.neg,Math.abs(dd[k]).toFixed(1),z.col,isPos);
+          ST.totalMicro++;document.getElementById('hMicro').textContent=ST.totalMicro;
+        }
+      });
+      updateProfile({browAsymm:.02,eyeAsymm:.03,mouthCorner:f.micro.mouth-.25,mouthWidth:.35,noseWidth:.22,nasoBias:.01,browRaw:f.micro.brow,eyeRaw:f.micro.eye,mouthRaw:f.micro.mouth,nasolabial:f.micro.nose},f.e,expr);
+    }
+    ST.frames++;document.getElementById('sF').textContent=ST.frames;
+    document.getElementById('camFps').textContent='~2 fps · demo';
+    document.getElementById('camRes').textContent='1280×720';
+    document.getElementById('hFps').textContent='~2';
+  },1800);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// WiFi / IP CAMERA ENGINE
+// Protocols: MJPEG stream, HLS (m3u8), WebRTC, RTSP-over-WebSocket
+// ═══════════════════════════════════════════════════════════════════════
+var WIFI = {
+  cameras: [],          // {id, name, url, protocol, status, signal}
+  activeId: null,       // currently streaming wifi cam
+  protocol: 'mjpeg',    // selected protocol
+  wsConn: null,         // WebSocket for RTSP relay
+  peerConn: null,       // RTCPeerConnection for WebRTC
+  imgEl: null,          // <img> for MJPEG
+  hlsObj: null,         // HLS.js instance
+  scanTimer: null,
+  localSubnet: ''       // detected local subnet e.g. "192.168.1"
+};
+
+// Common IP camera endpoints by protocol
+var MJPEG_PATHS = ['/video', '/video.mjpeg', '/videostream.cgi', '/mjpeg', '/stream',
+  '/webcam.mjpeg', '/mjpeg.cgi', '/?action=stream', '/cgi-bin/video.cgi', '/live/ch0'];
+var HLS_PATHS   = ['/stream/hls.m3u8', '/live/stream.m3u8', '/hls/stream.m3u8', '/live.m3u8'];
+var SNAP_PATHS  = ['/snapshot.jpg', '/capture.jpg', '/image.jpg', '/cgi-bin/snapshot.cgi'];
+
+function setProto(proto, el) {
+  WIFI.protocol = proto;
+  document.querySelectorAll('.wifi-proto').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+}
+
+// ── Detect local subnet from WebRTC ICE ──────────────────────────────
+async function detectLocalSubnet() {
+  try {
+    var pc = new RTCPeerConnection({iceServers:[]});
+    pc.createDataChannel('');
+    var offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await new Promise(function(r){setTimeout(r, 300);});
+    var sdp = pc.localDescription ? pc.localDescription.sdp : '';
+    var m = sdp.match(/(\d+\.\d+\.\d+)\.\d+/);
+    pc.close();
+    if (m) { WIFI.localSubnet = m[1]; return m[1]; }
+  } catch(e) {}
+  // Fallback: try common home network ranges
+  WIFI.localSubnet = '192.168.1';
+  return '192.168.1';
+}
+
+// ── Scan subnet for IP cameras ────────────────────────────────────────
+async function wifiScan() {
+  var btn = document.getElementById('wifiScanBtn');
+  btn.classList.add('scanning');
+  btn.textContent = '⟳ СКАНИРОВАНИЕ...';
+  var list = document.getElementById('wifiCamList');
+  list.innerHTML = '<div style="padding:10px 13px;font-family:var(--mono);font-size:8px;color:var(--yel)">⟳ Определяю подсеть...</div>';
+
+  var subnet = await detectLocalSubnet();
+  list.innerHTML = '<div style="padding:10px 13px;font-family:var(--mono);font-size:8px;color:var(--acc)">📡 Сканирую ' + subnet + '.1-254 — это займёт ~15 сек...</div>';
+
+  WIFI.cameras = [];
+  var found = [];
+
+  // Try common camera IPs in parallel batches
+  var commonIPs = [];
+  for (var i = 1; i <= 254; i++) commonIPs.push(subnet + '.' + i);
+
+  // Batch probe: try to fetch a thumbnail/snapshot (browser-reachable)
+  var batchSize = 20;
+  var batches = [];
+  for (var i = 0; i < commonIPs.length; i += batchSize) {
+    batches.push(commonIPs.slice(i, i + batchSize));
+  }
+
+  var scanned = 0;
+  for (var b = 0; b < batches.length; b++) {
+    var batch = batches[b];
+    var promises = batch.map(function(ip) { return probeCamera(ip); });
+    var results = await Promise.allSettled(promises);
+    results.forEach(function(r, i) {
+      if (r.status === 'fulfilled' && r.value) {
+        found.push(r.value);
+        WIFI.cameras.push(r.value);
+        renderWifiCamList();
+      }
+    });
+    scanned += batch.length;
+    btn.textContent = '⟳ ' + scanned + '/254';
+    // Small yield to not freeze UI
+    await new Promise(function(r){setTimeout(r, 10);});
+  }
+
+  btn.classList.remove('scanning');
+  btn.textContent = '🔍 СКАНИРОВАТЬ';
+
+  if (found.length === 0) {
+    list.innerHTML = '<div style="padding:12px 13px;font-family:var(--mono);font-size:8px;color:var(--dim)">Камеры не найдены. Добавьте URL вручную.</div>';
+  }
+  showToast('ok', '📡 Сканирование завершено', 'Найдено камер: ' + found.length);
+}
+
+// ── Probe a single IP for camera endpoints ──────────────────────────
+async function probeCamera(ip) {
+  var timeout = 800; // ms — short to scan fast
+  // Try snapshot paths (CORS-free via <img> trick)
+  for (var j = 0; j < SNAP_PATHS.length; j++) {
+    var url = 'http://' + ip + SNAP_PATHS[j];
+    var ok = await testImageUrl(url, timeout);
+    if (ok) {
+      return {
+        id: 'cam_' + ip.replace(/\./g,'_'),
+        name: 'IP Камера ' + ip,
+        ip: ip,
+        url: 'http://' + ip,
+        snapUrl: url,
+        protocol: 'mjpeg',
+        mjpegUrl: 'http://' + ip + MJPEG_PATHS[0],
+        hlsUrl: 'http://' + ip + HLS_PATHS[0],
+        status: 'found',
+        signal: Math.floor(Math.random()*3)+2  // 2-4 bars heuristic
+      };
+    }
+  }
+  return null;
+}
+
+// ── Test image URL loads (non-blocking) ─────────────────────────────
+function testImageUrl(url, timeout) {
+  return new Promise(function(resolve) {
+    var img = new Image();
+    var timer = setTimeout(function(){img.src='';resolve(false);}, timeout);
+    img.onload  = function(){clearTimeout(timer);resolve(true);};
+    img.onerror = function(){clearTimeout(timer);resolve(false);};
+    img.src = url;
+  });
+}
+
+// ── Add camera manually ──────────────────────────────────────────────
+function wifiAddManual() {
+  var inp = document.getElementById('wifiUrlInp');
+  var raw = (inp.value || '').trim();
+  if (!raw) { showToast('warn','⚠️ Введите URL','IP-адрес или URL камеры'); return; }
+
+  // Normalise: if just IP, build http://ip
+  var url = raw;
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(raw)) url = 'http://' + raw;
+  if (!url.startsWith('http') && !url.startsWith('rtsp') && !url.startsWith('ws')) {
+    url = 'http://' + url;
+  }
+
+  var ip   = (url.match(/(\d+\.\d+\.\d+\.\d+)/) || ['','unknown'])[1];
+  var name = 'Камера ' + (ip || raw.slice(0,20));
+  var proto = WIFI.protocol;
+
+  // Build stream URL based on selected protocol
+  var streamUrl = url;
+  if (proto === 'mjpeg' && !url.includes('/video') && !url.includes('stream')) {
+    streamUrl = url.replace(/\/?$/, MJPEG_PATHS[0]);
+  }
+  if (proto === 'hls') streamUrl = url.replace(/\/?$/, HLS_PATHS[0]);
+
+  var cam = {
+    id: 'cam_manual_' + Date.now(),
+    name: name, ip: ip, url: url, streamUrl: streamUrl,
+    protocol: proto, status: 'idle', signal: 3
+  };
+  WIFI.cameras.push(cam);
+  renderWifiCamList();
+  inp.value = '';
+  showToast('ok', '➕ Камера добавлена', name + ' · ' + proto.toUpperCase());
+}
+
+// ── Render camera list ───────────────────────────────────────────────
+function renderWifiCamList() {
+  var list = document.getElementById('wifiCamList');
+  if (!WIFI.cameras.length) {
+    list.innerHTML = '<div style="padding:12px 13px;font-family:var(--mono);font-size:8px;color:var(--dim)">Список пуст</div>';
+    return;
+  }
+  list.innerHTML = WIFI.cameras.map(function(cam) {
+    var stClass = cam.status==='streaming'?'ws-ok':cam.status==='connecting'?'ws-cn':cam.status==='error'?'ws-no':'ws-id';
+    var stTxt   = cam.status==='streaming'?'СТРИМ':cam.status==='connecting'?'ПОДКЛ.':cam.status==='error'?'ОШИБКА':'ГОТОВ';
+    var isActive = WIFI.activeId === cam.id;
+    var sigBars = sigStrength(cam.signal||3);
+    var proto = (cam.protocol||'mjpeg').toUpperCase();
+    return '<div class="wifi-cam-item' + (isActive?' active':'') + (cam.status==='error'?' error':'') + '" onclick="connectWifiCam(\'' + cam.id + '\')">'
+      + '<div class="wci-icon">' + camIcon(cam.protocol) + '</div>'
+      + '<div class="wci-info">'
+      +   '<div class="wci-name">' + cam.name + ' <span style="color:var(--dim);font-size:9px">['+proto+']</span></div>'
+      +   '<div class="wci-url">' + (cam.streamUrl||cam.url||cam.ip) + '</div>'
+      + '</div>'
+      + sigBars
+      + '<span class="wci-status ' + stClass + '">' + stTxt + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function camIcon(proto) {
+  var icons = {mjpeg:'📷', rtsp:'📡', hls:'📺', webrtc:'🔴', ws:'🌐'};
+  return icons[proto] || '📷';
+}
+
+function sigStrength(n) {
+  var bars = '<div class="wifi-sig">';
+  for (var i = 1; i <= 4; i++) {
+    bars += '<div class="wifi-sig-bar' + (i<=n?' on':'') + '" style="height:'+(i*3+3)+'px"></div>';
+  }
+  return bars + '</div>';
+}
+
+// ── Connect to WiFi camera ───────────────────────────────────────────
+async function connectWifiCam(camId) {
+  var cam = WIFI.cameras.find(function(c){return c.id===camId;});
+  if (!cam) return;
+
+  // Disconnect previous
+  disconnectWifiCam();
+
+  cam.status = 'connecting';
+  WIFI.activeId = camId;
+  renderWifiCamList();
+  showToast('ok', '📡 Подключение...', cam.name);
+
+  var proto = cam.protocol || WIFI.protocol;
+
+  try {
+    if (proto === 'mjpeg') {
+      await connectMJPEG(cam);
+    } else if (proto === 'hls') {
+      await connectHLS(cam);
+    } else if (proto === 'webrtc') {
+      await connectWebRTC(cam);
+    } else if (proto === 'rtsp') {
+      await connectRTSP_WS(cam);
+    } else {
+      await connectMJPEG(cam);
+    }
+  } catch(e) {
+    cam.status = 'error';
+    renderWifiCamList();
+    showToast('warn', '❌ Ошибка подключения', cam.name + ': ' + e.message);
+  }
+}
+
+// ── MJPEG Stream connection ─────────────────────────────────────────
+async function connectMJPEG(cam) {
+  var vid  = document.getElementById('vid');
+  var camPH = document.getElementById('camPH');
+
+  // Try multiple MJPEG paths
+  var paths = cam.streamUrl ? [cam.streamUrl] : MJPEG_PATHS.map(function(p){return 'http://'+cam.ip+p;});
+
+  for (var i = 0; i < paths.length; i++) {
+    var url = paths[i];
+    var ok = await new Promise(function(resolve) {
+      var img = new Image();
+      var timer = setTimeout(function(){img.src='';resolve(false);}, 3000);
+      img.onload  = function(){clearTimeout(timer); resolve(true);};
+      img.onerror = function(){clearTimeout(timer); resolve(false);};
+      img.src = url + '?t=' + Date.now();
+    });
+
+    if (ok) {
+      // Switch video element to show MJPEG via <img> overlay
+      var oc = document.getElementById('oc');
+      // Hide native video, show MJPEG img layered over it
+      if (!WIFI.imgEl) {
+        WIFI.imgEl = document.createElement('img');
+        WIFI.imgEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;transform:scaleX(-1);';
+        document.querySelector('.cam-box').insertBefore(WIFI.imgEl, oc);
+      }
+      WIFI.imgEl.src = url;
+      WIFI.imgEl.style.display = 'block';
+      camPH.style.display = 'none';
+      // Route face-api to the img element for detection
+      WIFI.activeStream = 'mjpeg';
+      WIFI.activeImgUrl = url;
+      cam.status = 'streaming';
+      renderWifiCamList();
+      updateCamSrcBar(cam);
+      startWifiDetection(cam);
+      showToast('ok', '✅ MJPEG стрим', cam.name);
+      return;
+    }
+  }
+  throw new Error('MJPEG endpoint не найден');
+}
+
+// ── HLS connection via HLS.js ────────────────────────────────────────
+async function connectHLS(cam) {
+  var vid = document.getElementById('vid');
+  var hlsUrl = cam.hlsUrl || cam.streamUrl || ('http://' + cam.ip + HLS_PATHS[0]);
+
+  // Load HLS.js dynamically if not present
+  if (typeof Hls === 'undefined') {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js');
+  }
+
+  if (Hls.isSupported()) {
+    WIFI.hlsObj = new Hls();
+    WIFI.hlsObj.loadSource(hlsUrl);
+    WIFI.hlsObj.attachMedia(vid);
+    await new Promise(function(resolve, reject) {
+      WIFI.hlsObj.on(Hls.Events.MANIFEST_PARSED, resolve);
+      WIFI.hlsObj.on(Hls.Events.ERROR, function(e, d) { if (d.fatal) reject(new Error('HLS error')); });
+      setTimeout(function(){reject(new Error('HLS timeout'));}, 8000);
+    });
+    vid.play();
+  } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+    vid.src = hlsUrl;
+    await vid.play();
+  } else {
+    throw new Error('HLS не поддерживается');
+  }
+
+  vid.style.display = 'block';
+  document.getElementById('camPH').style.display = 'none';
+  var cam_ref = WIFI.cameras.find(function(c){return c.id===WIFI.activeId;});
+  if (cam_ref) { cam_ref.status = 'streaming'; renderWifiCamList(); }
+  startWifiDetection(cam);
+  showToast('ok', '✅ HLS стрим', cam.name);
+}
+
+// ── WebRTC connection ────────────────────────────────────────────────
+async function connectWebRTC(cam) {
+  var signalUrl = cam.streamUrl || cam.url;
+  // Simple WebRTC WHEP/WHIP consumer for cameras that support it
+  WIFI.peerConn = new RTCPeerConnection({
+    iceServers: [{urls:'stun:stun.l.google.com:19302'}]
+  });
+  WIFI.peerConn.addTransceiver('video', {direction:'recvonly'});
+  WIFI.peerConn.addTransceiver('audio', {direction:'recvonly'});
+
+  var offer = await WIFI.peerConn.createOffer();
+  await WIFI.peerConn.setLocalDescription(offer);
+
+  // Send offer to camera's WHEP endpoint
+  var resp = await fetch(signalUrl + '/whep', {
+    method: 'POST',
+    headers: {'Content-Type':'application/sdp'},
+    body: offer.sdp
+  });
+  if (!resp.ok) throw new Error('WebRTC signaling failed');
+  var answerSdp = await resp.text();
+  await WIFI.peerConn.setRemoteDescription({type:'answer', sdp:answerSdp});
+
+  WIFI.peerConn.ontrack = function(e) {
+    var vid = document.getElementById('vid');
+    if (e.track.kind === 'video') {
+      vid.srcObject = e.streams[0];
+      vid.style.display = 'block';
+      document.getElementById('camPH').style.display = 'none';
+      var cam_ref = WIFI.cameras.find(function(c){return c.id===WIFI.activeId;});
+      if (cam_ref) { cam_ref.status = 'streaming'; renderWifiCamList(); }
+      startWifiDetection(cam);
+      showToast('ok', '✅ WebRTC стрим', cam.name);
+    }
+  };
+  setTimeout(function(){
+    var cam_ref = WIFI.cameras.find(function(c){return c.id===WIFI.activeId;});
+    if (cam_ref && cam_ref.status !== 'streaming') throw new Error('WebRTC нет видео');
+  }, 10000);
+}
+
+// ── RTSP via WebSocket relay ─────────────────────────────────────────
+async function connectRTSP_WS(cam) {
+  // Requires a WebSocket-to-RTSP relay on the local network
+  // Common relays: rtsp-simple-server, mediamtx, go2rtc, v4l2rtspserver
+  var wsUrl = cam.streamUrl || cam.url;
+  // Convert rtsp:// to ws://
+  wsUrl = wsUrl.replace('rtsp://', 'ws://').replace('rtsps://', 'wss://');
+  if (!wsUrl.startsWith('ws')) wsUrl = 'ws://' + cam.ip + ':8554/stream';
+
+  WIFI.wsConn = new WebSocket(wsUrl);
+  WIFI.wsConn.binaryType = 'arraybuffer';
+
+  await new Promise(function(resolve, reject) {
+    WIFI.wsConn.onopen = resolve;
+    WIFI.wsConn.onerror = function() { reject(new Error('WS connect failed')); };
+    setTimeout(function(){reject(new Error('WS timeout'));}, 5000);
+  });
+
+  // Use Media Source Extensions to decode incoming H264
+  var vid = document.getElementById('vid');
+  if (!('MediaSource' in window)) throw new Error('MediaSource не поддерживается');
+
+  var ms = new MediaSource();
+  vid.src = URL.createObjectURL(ms);
+  var sb;
+  ms.addEventListener('sourceopen', function() {
+    sb = ms.addSourceBuffer('video/mp4; codecs="avc1.42E01E"');
+  });
+
+  WIFI.wsConn.onmessage = function(e) {
+    if (sb && !sb.updating) {
+      try { sb.appendBuffer(new Uint8Array(e.data)); } catch(err){}
+    }
+  };
+
+  vid.style.display = 'block';
+  document.getElementById('camPH').style.display = 'none';
+  var cam_ref = WIFI.cameras.find(function(c){return c.id===WIFI.activeId;});
+  if (cam_ref) { cam_ref.status = 'streaming'; renderWifiCamList(); }
+  startWifiDetection(cam);
+  showToast('ok', '✅ RTSP/WS стрим', cam.name);
+}
+
+// ── Start face detection on wifi camera feed ─────────────────────────
+function startWifiDetection(cam) {
+  // If we have a live video stream in vid, mainLoop already handles it
+  // For MJPEG img, we snapshot at intervals and route to offscreen canvas
+  if (WIFI.activeStream === 'mjpeg' && WIFI.imgEl) {
+    clearInterval(ST.interval);
+    ST.interval = setInterval(async function() {
+      if (!WIFI.imgEl || !WIFI.imgEl.complete) return;
+      var oc = document.getElementById('oc');
+      var ctx = oc.getContext('2d');
+      oc.width  = WIFI.imgEl.naturalWidth  || 640;
+      oc.height = WIFI.imgEl.naturalHeight || 480;
+      // Draw current MJPEG frame to canvas for face-api
+      var tmp = document.createElement('canvas');
+      tmp.width = oc.width; tmp.height = oc.height;
+      var tctx = tmp.getContext('2d');
+      tctx.drawImage(WIFI.imgEl, 0, 0);
+      // Run face-api on the tmp canvas
+      try {
+        var dets = await faceapi
+          .detectAllFaces(tmp, new faceapi.TinyFaceDetectorOptions({scoreThreshold:.33}))
+          .withFaceLandmarks(true).withFaceExpressions();
+        ctx.clearRect(0,0,oc.width,oc.height);
+        if (dets.length > 0) {
+          var det=dets[0],expr=det.expressions,lm=det.landmarks.positions,box=det.detection.box;
+          var pose = calcPose(lm, oc.width, oc.height);
+          var absYaw = Math.abs(pose.yaw);
+          var w = absYaw>YAW_LOW?.38:absYaw>YAW_WARN?.65:1.0;
+          var q = absYaw>YAW_LOW?'low':absYaw>YAW_WARN?'mid':'high';
+          var dom = Object.entries(expr).sort(function(a,b){return b[1]-a[1];})[0][0];
+          var cp = (Math.min(.99, expr[dom]*w)*100).toFixed(0);
+          var zones = extractZones(lm, box.height);
+          var av = computeNativeAV(zones, expr, pose);
+          ST.arousal=av.a; ST.valence=av.v; ST.attention=av.attention;
+          ST.positivity=av.positivity; ST.wishType=av.wishType; ST.wishScore=av.wishConf||60;
+          drawFace(ctx,box,lm,dom,cp,q,pose,zones);
+          if (MESH.on) drawMesh3D(ctx, lm, det.expressions);
+          updateEmotionUI(expr,dom,cp,q,pose,absYaw);
+          updateAVUI(); updateWishUI(); smoothPush(dom);
+          if (zones && !ST.calibDone) feedCalib(zones);
+          if (zones && ST.calibDone) processMicro(zones);
+          if (zones && ST.frames%3===0) updateProfile(zones,dom,expr);
+        }
+        ST.frames++;
+        document.getElementById('sF').textContent = ST.frames;
+      } catch(e){ console.warn(e); }
+    }, 320);
+  }
+  // For video-based streams, mainLoop handles detection via vid element
+  ST.running = true; ST.demo = false;
+  document.getElementById('statusPill').className='pill live';
+  document.getElementById('statusTxt').textContent='WiFi';
+  updateCamSrcBar(cam);
+}
+
+// ── Disconnect current WiFi camera ───────────────────────────────────
+function disconnectWifiCam() {
+  if (WIFI.wsConn)   { try { WIFI.wsConn.close(); } catch(e){} WIFI.wsConn = null; }
+  if (WIFI.peerConn) { try { WIFI.peerConn.close(); } catch(e){} WIFI.peerConn = null; }
+  if (WIFI.hlsObj)   { try { WIFI.hlsObj.destroy(); } catch(e){} WIFI.hlsObj = null; }
+  if (WIFI.imgEl)    { WIFI.imgEl.src=''; WIFI.imgEl.style.display='none'; }
+  WIFI.activeId = null; WIFI.activeStream = null;
+  var prev = WIFI.cameras.find(function(c){return c.status==='streaming';});
+  if (prev) { prev.status = 'idle'; renderWifiCamList(); }
+}
+
+// ── Select camera source (local / wifi) ─────────────────────────────
+function selectCamSrc(srcId) {
+  document.querySelectorAll('.csb-btn').forEach(function(b){b.classList.remove('on');});
+  var btn = document.getElementById('src' + srcId.charAt(0).toUpperCase() + srcId.slice(1));
+  if (btn) btn.classList.add('on');
+  if (srcId === 'local') {
+    disconnectWifiCam();
+    // Restore local camera if running
+    if (ST.stream) {
+      var vid = document.getElementById('vid');
+      vid.srcObject = ST.stream;
+      vid.style.display = 'block';
+    }
+  }
+}
+
+// ── Update camera source buttons after wifi connect ──────────────────
+function updateCamSrcBar(cam) {
+  var bar = document.getElementById('camSrcBar');
+  // Remove old wifi buttons
+  bar.querySelectorAll('.wifi-src').forEach(function(b){b.remove();});
+  // Add button for this wifi cam
+  var btn = document.createElement('button');
+  btn.className = 'csb-btn wifi-src on';
+  btn.id = 'srcWifi_' + cam.id;
+  btn.textContent = '📡 ' + cam.name.slice(0,16);
+  btn.onclick = function() { selectCamSrc(cam.id); connectWifiCam(cam.id); };
+  bar.appendChild(btn);
+  // Deactivate local
+  var local = document.getElementById('srcLocal');
+  if (local) local.classList.remove('on');
+  document.getElementById('camLbl').textContent = cam.name.toUpperCase();
+}
+
+// Helper: load external script dynamically
+function loadScript(src) {
+  return new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 3D LANDMARK MESH ENGINE
+// 468-point-style mesh drawn on face-api.js 68 landmarks (expanded)
+// Each mesh point color: red (negative) → green (positive) by emotion
+// ═══════════════════════════════════════════════════════════════════════
+var MESH = {
+  on: false,
+  lastScore: 0,
+  targetScore: 0,
+  animScore: 0
+};
+
+function toggleMesh() {
+  MESH.on = !MESH.on;
+  var btn = document.getElementById('meshBtn');
+  btn.classList.toggle('on', MESH.on);
+  btn.textContent = MESH.on ? '◈ СЕТКА ВКЛ' : '◈ 3D СЕТКА';
+  showToast(MESH.on?'ok':'ok', MESH.on?'◈ 3D Сетка включена':'◈ 3D Сетка выключена',
+    MESH.on?'Точки меняют цвет по эмоции':'');
+}
+
+// Emotion score 0-100: 0=max negative (red), 100=max positive (green)
+function calcMeshScore(expr) {
+  if (!expr) return 50;
+  var pos = (expr.happy||0)*1.0 + (expr.surprised||0)*0.4;
+  var neg = (expr.angry||0)*1.0 + (expr.disgusted||0)*0.9 + (expr.sad||0)*0.7 + (expr.fearful||0)*0.6;
+  var raw = (pos - neg + 1) / 2; // 0..1
+  return Math.round(Math.max(0, Math.min(100, raw * 100)));
+}
+
+// Interpolate color: red(0) → yellow(50) → green(100)
+function meshColor(score, alpha) {
+  alpha = alpha || 1.0;
+  var r, g, b = 30;
+  if (score < 50) {
+    // red → yellow
+    r = 255;
+    g = Math.round(score * 5.1);  // 0→255 at 50
+  } else {
+    // yellow → green
+    r = Math.round((100 - score) * 5.1);
+    g = 255;
+  }
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+// 68-landmark mesh: we define triangles + edges that form a face mesh
+// Regions: jaw, eyebrows, eyes, nose, mouth, face-outline
+var MESH_TRIANGLES = [
+  // Jaw lower arc
+  [0,1,17],[1,2,41],[2,3,42],[3,4,43],[4,5,44],[5,6,45],[6,7,46],[7,8,47],
+  [8,9,47],[9,10,46],[10,11,45],[11,12,44],[12,13,43],[13,14,42],[14,15,41],[15,16,17],
+  // Cheeks to brows
+  [17,18,36],[18,19,37],[19,20,38],[20,21,39],[21,22,27],[22,23,27],[23,24,42],[24,25,45],[25,26,16],
+  // Left eye region
+  [36,37,41],[37,38,41],[38,39,40],[39,40,41],
+  // Right eye region
+  [42,43,47],[43,44,47],[44,45,46],[45,46,47],
+  // Nose bridge
+  [27,28,31],[28,29,31],[29,30,35],[30,31,35],[31,32,33],[33,34,35],
+  // Nose to mouth
+  [31,48,60],[35,54,64],[48,49,60],[49,50,61],[50,51,62],[51,52,63],[52,53,64],[53,54,64],
+  // Mouth outer
+  [60,61,67],[61,62,66],[62,63,65],[63,64,65],[64,65,54],[65,66,57],[66,67,58],[67,60,59],
+  // Mouth inner
+  [48,60,59],[54,64,55],[60,59,67],[64,55,65],
+  // Forehead (synthesized using brow + eye midpoints)
+  [17,19,36],[19,21,39],[22,24,42],[24,26,45],
+  // Mid-face fill
+  [36,39,28],[42,45,28],[28,31,39],[28,35,42],
+];
+
+var MESH_EDGES = [
+  // Jaw
+  [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],
+  // Left brow
+  [17,18],[18,19],[19,20],[20,21],
+  // Right brow
+  [22,23],[23,24],[24,25],[25,26],
+  // Nose bridge
+  [27,28],[28,29],[29,30],[30,31],[31,32],[32,33],[33,34],[34,35],
+  // Left eye
+  [36,37],[37,38],[38,39],[39,40],[40,41],[41,36],
+  // Right eye
+  [42,43],[43,44],[44,45],[45,46],[46,47],[47,42],
+  // Nose bottom
+  [31,35],
+  // Mouth outer
+  [48,49],[49,50],[50,51],[51,52],[52,53],[53,54],[54,55],[55,56],[56,57],[57,58],[58,59],[59,48],
+  // Mouth inner
+  [60,61],[61,62],[62,63],[63,64],[64,65],[65,66],[66,67],[67,60],
+  // Face sides
+  [17,36],[26,45],[0,17],[16,26],
+];
+
+function drawMesh3D(ctx, lm, expr) {
+  if (!lm || lm.length < 68) return;
+  var score = calcMeshScore(expr);
+
+  // Smooth animation
+  MESH.targetScore = score;
+  MESH.animScore += (MESH.targetScore - MESH.animScore) * 0.15;
+  var s = MESH.animScore;
+
+  // ── Draw filled triangles (very low alpha for 3D depth feel) ──
+  MESH_TRIANGLES.forEach(function(tri) {
+    var a = lm[tri[0]], b = lm[tri[1]], c = lm[tri[2]];
+    if (!a||!b||!c) return;
+    // Per-triangle score: average of vertex indices heuristic
+    var triScore = s + (tri[0]+tri[1]+tri[2])%15 - 7; // slight per-region variation
+    triScore = Math.max(0, Math.min(100, triScore));
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y);
+    ctx.closePath();
+    ctx.fillStyle = meshColor(triScore, 0.07);
+    ctx.fill();
+  });
+
+  // ── Draw edges ──
+  MESH_EDGES.forEach(function(edge) {
+    var a = lm[edge[0]], b = lm[edge[1]];
+    if (!a||!b) return;
+    var edgeScore = s + (edge[0]+edge[1])%20 - 10;
+    edgeScore = Math.max(0, Math.min(100, edgeScore));
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = meshColor(edgeScore, 0.55);
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
+
+  // ── Draw landmark NODES ──
+  lm.forEach(function(pt, i) {
+    if (!pt) return;
+    // Each node pulses with slight offset for organic feel
+    var nodeScore = s + Math.sin(i * 0.4 + Date.now()*0.002) * 8;
+    nodeScore = Math.max(0, Math.min(100, nodeScore));
+    var radius = i < 17 ? 2.0 : i < 27 ? 2.5 : i < 36 ? 2.0 : 2.8; // zone-based size
+
+    // Glow halo
+    var grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, radius*3);
+    grd.addColorStop(0, meshColor(nodeScore, 0.6));
+    grd.addColorStop(1, meshColor(nodeScore, 0));
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, radius*3, 0, Math.PI*2);
+    ctx.fill();
+
+    // Solid dot
+    ctx.fillStyle = meshColor(nodeScore, 0.95);
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, radius, 0, Math.PI*2);
+    ctx.fill();
+
+    // White specular highlight (top-left)
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    ctx.arc(pt.x - radius*0.3, pt.y - radius*0.3, radius*0.4, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  // ── Depth lines: vertical face axis ──
+  var noseTip = lm[30], chin = lm[8], forehead = {
+    x: (lm[19].x + lm[24].x) / 2,
+    y: lm[19].y - (lm[8].y - lm[27].y) * 0.3
+  };
+  if (noseTip && chin && forehead) {
+    ctx.beginPath();
+    ctx.moveTo(forehead.x, forehead.y);
+    ctx.lineTo(noseTip.x, noseTip.y);
+    ctx.lineTo(chin.x, chin.y);
+    ctx.strokeStyle = meshColor(s, 0.3);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+// ── Hook drawMesh3D into main detection loop ─────────────────────────
+// (Called after drawFace in mainLoop)
+var _origMainLoop = mainLoop;
+mainLoop = async function() {
+  // Override: just inject mesh drawing after drawFace
+  await _origMainLoop();
+};
+// Actually patch drawFace to also call mesh
+var _origDrawFace = drawFace;
+drawFace = function(ctx, box, lm, dom, cp, q, pose, zones) {
+  _origDrawFace(ctx, box, lm, dom, cp, q, pose, zones);
+  if (MESH.on && lm) {
+    // Get expressions from last detection — grab from emCard/bars
+    var expr = getCurrentExpressions();
+    drawMesh3D(ctx, lm, expr);
+  }
+};
+
+// Pull current expression values from live UI (avoids re-detection)
+function getCurrentExpressions() {
+  var keys = ['happy','angry','sad','surprised','neutral','fearful','disgusted'];
+  var expr = {};
+  keys.forEach(function(k) {
+    var el = document.getElementById('pv_' + k);
+    if (el) {
+      var v = parseFloat(el.textContent) / 100;
+      expr[k] = isNaN(v) ? 0 : v;
+    }
+  });
+  return expr;
+}
+
+// ── Also store lm globally so MJPEG path can call drawMesh ────────────
+var _lastLandmarks = null;
+var _origDrawFace2 = drawFace;
+drawFace = function(ctx, box, lm, dom, cp, q, pose, zones) {
+  _lastLandmarks = lm;
+  _origDrawFace2(ctx, box, lm, dom, cp, q, pose, zones);
+};
+
+
+// ═══════════════════════════════════════════════════
+// MOBILE LAYOUT CONTROLLER
+// ═══════════════════════════════════════════════════
+var MOB = { panel: 0 };
+
+function isMobileDevice(){
+  return window.innerWidth <= 768;
+}
+
+function switchMobPanel(idx){
+  MOB.panel = idx;
+  // Update panels
+  for(var i=0;i<4;i++){
+    var p=document.getElementById('mob_p'+i);
+    var t=document.getElementById('mtab'+i);
+    if(p) p.style.display = i===idx ? 'block' : 'none';
+    if(t){
+      t.style.color   = i===idx ? 'var(--acc)' : 'var(--dim)';
+      t.style.borderTopColor = i===idx ? 'var(--acc)' : 'transparent';
+    }
+  }
+  // Scroll to top
+  var c=document.getElementById('mobContent');
+  if(c) c.scrollTop=0;
+}
+
+// Override startSys / stopSys to handle mobile elements
+var _origStartSys = startSys;
+startSys = async function(){
+  var isMob = isMobileDevice();
+  if(isMob){
+    var mBtnGo=document.getElementById('mBtnGo');
+    var mBtnStop=document.getElementById('mBtnStop');
+    var mLoadOv=document.getElementById('mLoadOv');
+    var mLoadMsg=document.getElementById('mLoadMsg');
+    if(mBtnGo) mBtnGo.disabled=true;
+    if(mLoadOv) mLoadOv.classList.add('on');
+    if(mLoadMsg) mLoadMsg.textContent='ЗАПРОС КАМЕРЫ...';
+    try{
+      var constraints={video:{width:{ideal:1280},height:{ideal:720},facingMode:'environment'}};
+      ST.stream=await navigator.mediaDevices.getUserMedia(constraints);
+      var vid=document.getElementById('mVid');
+      vid.srcObject=ST.stream; vid.style.display='block';
+      document.getElementById('mCamPH').style.display='none';
+      document.getElementById('mOc').style.display='block';
+      if(mLoadMsg) mLoadMsg.textContent='ЗАГРУЗКА НЕЙРОСЕТИ...';
+      if(!ST.modelsLoaded){ await loadModels(mLoadMsg||{textContent:''}); ST.modelsLoaded=true; }
+      await new Promise(function(r){vid.addEventListener('loadeddata',r,{once:true});});
+      if(mLoadOv) mLoadOv.classList.remove('on');
+      if(mBtnGo) mBtnGo.style.display='none';
+      if(mBtnStop) mBtnStop.style.display='block';
+      var mScanLine=document.getElementById('mScanLine');
+      if(mScanLine) mScanLine.classList.add('on');
+      document.getElementById('statusPill').className='pill live';
+      document.getElementById('statusTxt').textContent='LIVE';
+      ST.running=true; ST.demo=false;
+      ST.interval=setInterval(mobileLoop, 350);
+      startCalib();
+      document.getElementById('engDot') && document.getElementById('engDot').classList.add('on');
+      document.getElementById('engStatusTxt') && (document.getElementById('engStatusTxt').textContent='Native AI · активен');
+      addLog('🟢','Камера активна (мобильный)','l');
+      showToast('ok','🟢 DomeMind PRO','Камера запущена');
+    }catch(e){
+      if(mLoadOv) mLoadOv.classList.remove('on');
+      if(mBtnGo) mBtnGo.disabled=false;
+      showToast('warn','📽 Демо режим','Камера недоступна');
+      startDemo();
+    }
+  } else {
+    await _origStartSys();
+  }
+};
+
+var _origStopSys = stopSys;
+stopSys = function(){
+  _origStopSys();
+  // Mobile specific cleanup
+  var mBtnGo=document.getElementById('mBtnGo');
+  var mBtnStop=document.getElementById('mBtnStop');
+  if(mBtnGo){mBtnGo.style.display='block';mBtnGo.disabled=false;}
+  if(mBtnStop) mBtnStop.style.display='none';
+  var mVid=document.getElementById('mVid');
+  if(mVid){mVid.style.display='none';mVid.srcObject=null;}
+  var mOc=document.getElementById('mOc');
+  if(mOc) mOc.style.display='none';
+  var mCamPH=document.getElementById('mCamPH');
+  if(mCamPH) mCamPH.style.display='flex';
+  var mScanLine=document.getElementById('mScanLine');
+  if(mScanLine) mScanLine.className='scanline';
+};
+
+// ── Mobile detection loop ────────────────────────────────────────────
+async function mobileLoop(){
+  if(!ST.running || ST.demo) return;
+  var vid=document.getElementById('mVid');
+  var cvs=document.getElementById('mOc');
+  if(!vid||vid.readyState<2||!cvs) return;
+  cvs.width=vid.videoWidth||640; cvs.height=vid.videoHeight||480;
+  var ctx=cvs.getContext('2d');
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  try{
+    var dets=await faceapi.detectAllFaces(vid,new faceapi.TinyFaceDetectorOptions({scoreThreshold:.33}))
+      .withFaceLandmarks(true).withFaceExpressions();
+    if(dets.length>0){
+      var det=dets[0],expr=det.expressions,lm=det.landmarks.positions,box=det.detection.box;
+      var pose=calcPose(lm,cvs.width,cvs.height);
+      var absYaw=Math.abs(pose.yaw);
+      var w=absYaw>YAW_LOW?.38:absYaw>YAW_WARN?.65:1.0;
+      var q=absYaw>YAW_LOW?'low':absYaw>YAW_WARN?'mid':'high';
+      var dom=Object.entries(expr).sort(function(a,b){return b[1]-a[1];})[0][0];
+      var cp=(Math.min(.99,expr[dom]*w)*100).toFixed(0);
+      var zones=extractZones(lm,box.height);
+      var av=computeNativeAV(zones,expr,pose);
+      ST.arousal=av.a; ST.valence=av.v; ST.attention=av.attention;
+      ST.positivity=av.positivity; ST.wishType=av.wishType; ST.wishScore=av.wishConf||60;
+      // Draw on mobile canvas
+      drawFace(ctx,box,lm,dom,cp,q,pose,zones);
+      if(MESH.on) drawMesh3D(ctx,lm,expr);
+      // Update mobile UI
+      updateMobEmotionUI(expr,dom,cp,q,pose,absYaw);
+      updateMobAVUI();
+      updateMobWishUI();
+      updateMobGauge();
+      smoothPush(dom);
+      if(zones&&!ST.calibDone) feedCalib(zones);
+      if(zones&&ST.calibDone) processMicro(zones);
+      if(zones&&ST.frames%3===0) updateProfile(zones,dom,expr);
+      // FPS counter
+      ST.fpsCount=(ST.fpsCount||0)+1;
+      var now=Date.now();
+      if(!ST.fpsTime||now-ST.fpsTime>1000){
+        ST.fps=ST.fpsCount;
+        var fpsEl=document.getElementById('mCamFps');
+        if(fpsEl) fpsEl.textContent=ST.fps+' fps';
+        ST.fpsCount=0; ST.fpsTime=now;
+      }
+    } else { clearMobFaceUI(); }
+    ST.frames++;
+  }catch(e){ console.warn(e); }
+}
+
+// ── Mobile UI updaters ───────────────────────────────────────────────
+function updateMobEmotionUI(expr,dom,cp,q,pose,absYaw){
+  var m=EMETA[dom]||EMETA.neutral;
+  setTxt('mEmIco',m.e); setTxt('mEmName',m.n); setTxt('mEmPct',cp+'%');
+  var mq=document.getElementById('mEmQ');
+  if(mq){mq.className=q==='high'?'em-q q-hi':q==='mid'?'em-q q-md':'em-q q-lo';
+    mq.textContent=q==='high'?'ВЫСОКОЕ':'YAW '+absYaw.toFixed(0)+'°';}
+  // Expression bars
+  var barsCont=document.getElementById('mExprBars');
+  if(barsCont){
+    var EORDER=[['happy','😊 Радость','#00f090'],['angry','😠 Злость','#ff4560'],
+      ['sad','😢 Грусть','#00c8ff'],['surprised','😲 Удивление','#ffc930'],
+      ['neutral','😐 Нейтраль','#4a5e80'],['fearful','😨 Страх','#b06aff']];
+    barsCont.innerHTML=EORDER.map(function(e){
+      var v=Math.round((expr[e[0]]||0)*100);
+      return '<div style="display:flex;flex-direction:column;gap:4px;">'
+        +'<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;">'
+        +'<span style="color:var(--sub)">'+e[1]+'</span>'
+        +'<span style="color:var(--txt);font-weight:700;">'+v+'%</span></div>'
+        +'<div style="height:6px;background:var(--s3);border-radius:3px;overflow:hidden;">'
+        +'<div style="height:100%;width:'+v+'%;background:'+e[2]+';border-radius:3px;transition:width .2s;"></div>'
+        +'</div></div>';
+    }).join('');
+  }
+  // Angle overlay
+  var ang=document.getElementById('mAngOv');
+  var angV=document.getElementById('mAngVal');
+  if(ang) ang.className='ang-ov'+(absYaw>YAW_WARN?' show':'');
+  if(angV) angV.textContent=absYaw.toFixed(0)+'°';
+}
+
+function updateMobAVUI(){
+  var a=ST.arousal,v=ST.valence,pi=ST.positivity,att=ST.attention;
+  var piCol=pi>60?'var(--grn)':pi>40?'var(--yel)':'var(--red)';
+  setTxt('mPiNum',pi); setStyle('mPiNum','color',piCol);
+  setStyle('mPiCursor','left',pi+'%');
+  var aStr=(a>=0?'+':'')+a.toFixed(2);
+  var vStr=(v>=0?'+':'')+v.toFixed(2);
+  setTxt('mArousalNum',aStr);
+  setStyle('mArousalNum','color',Math.abs(a)>.4?'var(--yel)':'var(--sub)');
+  setTxt('mValenceNum',vStr);
+  setStyle('mValenceNum','color',v>.2?'var(--grn)':v<-.2?'var(--red)':'var(--sub)');
+  var attPct=Math.round(att*100);
+  setTxt('mAttNum2',attPct+'%');
+  setStyle('mAttNum2','color',att>.6?'var(--grn)':att>.3?'var(--yel)':'var(--red)');
+  setTxt('mAttPct',attPct+'%');
+  setStyle('mAttPct','color',att>.6?'var(--grn)':att>.3?'var(--yel)':'var(--red)');
+  // Draw circumplex
+  drawAVCircumplex(a,v,'mAvCanvas');
+}
+
+function updateMobWishUI(){
+  var WISH_META={
+    'positive':{ico:'✅',label:'Позитивное намерение',sub:'Склонен к решению',col:'var(--grn)'},
+    'negative':{ico:'❌',label:'Негативное намерение',sub:'Сопротивление',col:'var(--red)'},
+    'interested':{ico:'👀',label:'Заинтересован',sub:'Хочет информацию',col:'var(--acc)'},
+    'bored':{ico:'😑',label:'Скучает',sub:'Смените подход',col:'var(--dim)'},
+    'undecided':{ico:'🤔',label:'Не решил',sub:'Взвешивает',col:'var(--yel)'},
+    'engaged':{ico:'🎯',label:'Вовлечён',sub:'Закрывайте сделку!',col:'var(--grn)'}
+  };
+  var meta=WISH_META[ST.wishType]||WISH_META['undecided'];
+  setTxt('mWishIco',meta.ico); setTxt('mWishLabel',meta.label);
+  setTxt('mWishSub',meta.sub);
+  setTxt('mWishConf',(ST.wishScore||50)+'%'); setStyle('mWishConf','color',meta.col);
+  var wc=document.getElementById('mWishCard');
+  if(wc) wc.style.borderColor=meta.col;
+}
+
+function updateMobGauge(){
+  var openness=50,tension=50;
+  if(ST.profileData){openness=ST.profileData.openness||50;tension=ST.profileData.tension||50;}
+  var emoMap={Радость:88,Удивление:72,Нейтраль:50,Грусть:28,Злость:12,Страх:20,Отвращение:15};
+  var emName=(document.getElementById('mEmName')||{}).textContent||'Нейтраль';
+  var emoScore=emoMap[emName]||50;
+  var attScore=Math.round(ST.attention*100);
+  var score=Math.min(99,Math.max(1,
+    emoScore*.25+attScore*.20+openness*.15+(100-tension)*.15+70*.10+ST.wishScore*.15));
+  var pct=score/100;
+  var col=score>=65?'#00f090':score>=45?'#ffc930':score>=30?'#ff8c00':'#ff1f3d';
+  var verdict=score>=75?'🟢 ЗАКЛЮЧАЙТЕ СДЕЛКУ':score>=60?'🟢 ВЫСОКАЯ ГОТОВНОСТЬ':
+    score>=45?'🟡 НЕЙТРАЛЬНАЯ ЗОНА':score>=30?'🟠 НИЗКАЯ ГОТОВНОСТЬ':'🔴 НЕ ГОТОВ';
+  var sub=score>=60?'Предложите конкретный вариант':score>=45?'Продолжайте — не давите':'Снимите напряжение';
+  setStyle('mDgCursor','left',(pct*100)+'%');
+  setTxt('mDgNum',score.toFixed(0)); setStyle('mDgNum','color',col);
+  setTxt('mDgVerdict',verdict); setStyle('mDgVerdict','color',col);
+  setTxt('mDgSub',sub);
+  var mdg=document.getElementById('mDealGauge')||document.getElementById('mobileWrap');
+  // Factor pills
+  setTxt('mDf_emo',emoScore.toFixed(0)+'%'); setStyle('mDf_emo','color',col);
+  setTxt('mDf_att',attScore+'%'); setStyle('mDf_att','color','var(--yel)');
+  setTxt('mDf_open',openness.toFixed(0)+'%'); setStyle('mDf_open','color','var(--grn)');
+  setTxt('mDf_tens',(100-tension).toFixed(0)+'%'); setStyle('mDf_tens','color','var(--red)');
+  setTxt('mDf_wish',(ST.wishScore||50)+'%'); setStyle('mDf_wish','color','var(--pur)');
+}
+
+function clearMobFaceUI(){
+  setTxt('mEmIco','👤'); setTxt('mEmName','Лицо не найдено');
+}
+
+// Mobile WiFi
+function mWifiAddManual(){
+  var inp=document.getElementById('mWifiUrlInp');
+  if(!inp||!inp.value.trim()) return;
+  document.getElementById('wifiUrlInp').value=inp.value;
+  wifiAddManual();
+  // Also render in mobile list
+  renderMobWifiList();
+  inp.value='';
+}
+
+function renderMobWifiList(){
+  var mList=document.getElementById('mWifiCamList');
+  var dList=document.getElementById('wifiCamList');
+  if(mList&&dList) mList.innerHTML=dList.innerHTML;
+}
+
+// Patch wifiScan to also update mobile list
+var _origWifiScan=wifiScan;
+wifiScan=async function(){
+  var mBtn=document.getElementById('mWifiScanBtn');
+  if(mBtn){mBtn.classList.add('scanning');mBtn.textContent='⟳ СКАНИРОВАНИЕ...';}
+  await _origWifiScan();
+  renderMobWifiList();
+  if(mBtn){mBtn.classList.remove('scanning');mBtn.textContent='🔍 СКАНИРОВАТЬ';}
+};
+
+function mSelectCamSrc(id){
+  selectCamSrc(id);
+}
+
+// Override profile/tactic/log updates to also update mobile
+var _origUpdateProfile=updateProfile;
+updateProfile=function(zones,dom,expr){
+  _origUpdateProfile(zones,dom,expr);
+  if(!ST.profileData)return;
+  var p=ST.profileData;
+  // Mobile buy ring
+  var circ=163.4;
+  var mRing=document.getElementById('mRingFg');
+  if(mRing){
+    mRing.style.strokeDashoffset=circ-(p.buy/100)*circ;
+    mRing.style.stroke=p.buy>60?'#00f090':p.buy>35?'#ffc930':'#ff4560';
+  }
+  var buyCol=p.buy>60?'var(--grn)':p.buy>35?'var(--yel)':'var(--red)';
+  setTxt('mBuyPct',p.buy.toFixed(0)+'%'); setStyle('mBuyPct','color',buyCol);
+  setTxt('mBuyDesc',p.buy>60?'Высокий — подойдите':p.buy>35?'Средний — наблюдайте':'Низкий — дайте время');
+  // Age/gender
+  if(ST.ageEst){
+    setTxt('mMcAge',ST.ageEst+' л'); setStyle('mMcAge','color','var(--acc)');
+  }
+  // Traits
+  var traits=[
+    {n:'Открытость',v:p.openness,c:'#00c8ff'},{n:'Напряжённость',v:p.tension,c:'#ff4560'},
+    {n:'Выразительность',v:p.expressiveness,c:'#ffc930'},{n:'Симметрия',v:p.symmetry,c:'#00f090'},
+    {n:'Доминантность',v:p.dominance,c:'#b06aff'},{n:'Аналитичность',v:p.analyticism,c:'#ff7a30'}
+  ];
+  var mTraits=document.getElementById('mPcTraits');
+  if(mTraits) mTraits.innerHTML=traits.map(function(t){
+    return '<div style="display:grid;grid-template-columns:120px 1fr 40px;gap:8px;align-items:center;">'
+      +'<div style="font-size:12px;font-weight:600;color:var(--sub);">'+t.n+'</div>'
+      +'<div style="height:5px;background:var(--s3);border-radius:3px;overflow:hidden;">'
+      +'<div style="height:100%;width:'+t.v.toFixed(0)+'%;background:'+t.c+';border-radius:3px;transition:width .5s;"></div>'
+      +'</div>'
+      +'<div style="font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;color:'+t.c+'">'+t.v.toFixed(0)+'%</div>'
+      +'</div>';
+  }).join('');
+};
+
+// Override addLog to also update mobile list
+var _origAddLog=addLog;
+addLog=function(emoji,msg,sev){
+  _origAddLog(emoji,msg,sev);
+  var mList=document.getElementById('mLogList');
+  var dList=document.getElementById('logList');
+  if(mList&&dList) mList.innerHTML=dList.innerHTML;
+};
+
+// Override triggerAgent to also update mobile agent block
+var _origTriggerAgent=triggerAgent;
+triggerAgent=function(emotion){
+  _origTriggerAgent(emotion);
+  var mAgT=document.getElementById('mAgT');
+  var mAgB=document.getElementById('mAgB');
+  var mAgX=document.getElementById('mAgX');
+  var mAgBtns=document.getElementById('mAgBtns');
+  var dAgT=document.getElementById('agT');
+  var dAgB=document.getElementById('agB');
+  var dAgX=document.getElementById('agX');
+  var dAgBtns=document.getElementById('agBtns');
+  var dAgBlk=document.getElementById('agBlock');
+  var mAgBlk=document.getElementById('mAgBlock');
+  if(mAgT&&dAgT) mAgT.textContent=dAgT.textContent;
+  if(mAgB&&dAgB){mAgB.className=dAgB.className;mAgB.textContent=dAgB.textContent;}
+  if(mAgX&&dAgX) mAgX.textContent=dAgX.textContent;
+  if(mAgBlk&&dAgBlk) mAgBlk.className=dAgBlk.className;
+  if(mAgBtns&&dAgBtns) mAgBtns.innerHTML=dAgBtns.innerHTML;
+};
+
+// Override startDemo to work on mobile
+var _origStartDemo=startDemo;
+startDemo=function(){
+  _origStartDemo();
+  var mBtnGo=document.getElementById('mBtnGo');
+  var mBtnStop=document.getElementById('mBtnStop');
+  if(mBtnGo) mBtnGo.style.display='none';
+  if(mBtnStop) mBtnStop.style.display='block';
+  var mCamPH=document.getElementById('mCamPH');
+  if(mCamPH){
+    mCamPH.innerHTML='<div style="font-size:24px;opacity:.2">⚫</div>'
+      +'<div style="font-size:13px;font-weight:700;letter-spacing:1px;color:var(--yel)">ДЕМО РЕЖИМ</div>'
+      +'<div style="font-size:10px;color:var(--dim);font-family:var(--mono);text-align:center;">Native AI · симуляция</div>';
+    mCamPH.style.display='flex';
+  }
+  // Override demo interval to also call mobile updaters
+  clearInterval(ST.interval);
+  var _demoSeq=[
+    {e:'neutral',yaw:5,c:72,a:0.0,v:0.1,att:.70,wish:'undecided'},
+    {e:'happy',yaw:-8,c:83,a:0.4,v:0.6,att:.88,wish:'engaged'},
+    {e:'surprised',yaw:25,c:55,a:0.7,v:0.3,att:.75,wish:'interested'},
+    {e:'sad',yaw:8,c:74,a:-.3,v:-.4,att:.68,wish:'undecided'},
+    {e:'angry',yaw:-15,c:81,a:.6,v:-.6,att:.72,wish:'negative'},
+    {e:'neutral',yaw:5,c:80,a:0.0,v:0.1,att:.78,wish:'undecided'},
+    {e:'happy',yaw:3,c:91,a:.3,v:.7,att:.93,wish:'engaged'}
+  ];
+  ST.interval=setInterval(function(){
+    var f=_demoSeq[ST.demoIdx%_demoSeq.length]; ST.demoIdx++;
+    var aY=Math.abs(f.yaw),q=aY>YAW_LOW?'low':aY>YAW_WARN?'mid':'high';
+    var w=aY>YAW_LOW?.38:aY>YAW_WARN?.65:1.0;
+    var cp=Math.round(f.c*w);
+    var expr={};
+    ['happy','angry','sad','surprised','neutral','fearful','disgusted'].forEach(function(e){
+      expr[e]=e===f.e?f.c/100:Math.random()*.05;});
+    var noise=function(){return(Math.random()-.5)*.1;};
+    ST.arousal=Math.max(-1,Math.min(1,f.a+noise()));
+    ST.valence=Math.max(-1,Math.min(1,f.v+noise()));
+    ST.attention=Math.max(.1,Math.min(1,f.att+noise()*.3));
+    ST.positivity=Math.round(((ST.valence*Math.cos(30*Math.PI/180)+ST.arousal*Math.sin(30*Math.PI/180))+1)*50);
+    ST.wishType=f.wish; ST.wishScore=55+Math.round(Math.random()*35);
+    if(!ST.ageEst) ST.ageEst=28+Math.floor(Math.random()*20);
+    // Update mobile UI
+    updateMobEmotionUI(expr,f.e,cp,q,{yaw:f.yaw,pitch:0},aY);
+    updateMobAVUI(); updateMobWishUI(); updateMobGauge();
+    smoothPush(f.e);
+    ST.frames++; setTxt('sF',ST.frames);
+    if(document.getElementById('mCamFps')) document.getElementById('mCamFps').textContent='demo';
+    // Also update desktop
+    updateEmotionUI(expr,f.e,cp,q,{yaw:f.yaw,pitch:0},aY);
+    updateAVUI(); updateWishUI();
+  },1800);
+};
+
+// Init mobile on load
+(function initMobile(){
+  // Show first panel
+  switchMobPanel(0);
+  // Build expression bars container
+  var barsCont=document.getElementById('mExprBars');
+  if(barsCont) barsCont.innerHTML='<div style="font-size:10px;color:var(--dim);text-align:center;padding:8px;">Запустите камеру</div>';
+})();
+
+</script>
+
+<!-- ══════════════════════════════════════════
+     IPHONE MOBILE LAYOUT
+     Full-screen: camera top, gauge big, tabs
+     ══════════════════════════════════════════ -->
+<div id="mobileWrap" style="display:none;flex-direction:column;
+  height:calc(100dvh - var(--hdr) - var(--safe-top));
+  margin-top:calc(var(--hdr) + var(--safe-top));
+  background:var(--bg);overflow:hidden;">
+
+  <!-- SCROLLABLE PANELS -->
+  <div id="mobContent" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding-bottom:calc(var(--tab) + var(--safe-bot) + 8px);">
+
+    <!-- ╔══ PANEL 0: КАМЕРА + СДЕЛКА ══╗ -->
+    <div class="mob-panel active" id="mob_p0">
+
+      <!-- ── CAMERA ── -->
+      <div style="position:relative;width:100%;background:#000;overflow:hidden;aspect-ratio:4/3;">
+        <div id="mCamPH" style="position:absolute;inset:0;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;gap:10px;background:var(--s1);">
+          <div style="font-size:48px;opacity:.12">⚫</div>
+          <div style="font-size:15px;font-weight:700;letter-spacing:2px;color:var(--sub);font-family:var(--mono);">НАЖМИТЕ СТАРТ</div>
+          <div style="font-size:11px;color:var(--dim);font-family:var(--mono);text-align:center;line-height:1.6;">
+            Направьте камеру<br>на клиента
+          </div>
+        </div>
+        <video id="mVid" autoplay muted playsinline
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1);"></video>
+        <canvas id="mOc" style="position:absolute;inset:0;width:100%;height:100%;display:none;transform:scaleX(-1);z-index:4;"></canvas>
+        <div class="scanline" id="mScanLine"></div>
+        <!-- Corner brackets -->
+        <div class="bk tl"></div><div class="bk tr"></div><div class="bk bl"></div><div class="bk br"></div>
+        <!-- HUD top-left -->
+        <div class="hud-tl" style="font-size:9px;">
+          <div class="pdot" id="mRecDot" style="background:var(--red)"></div>
+          <span id="mCamLbl">КАМЕРА</span>
+        </div>
+        <!-- FPS top-right -->
+        <div class="hud-tr" id="mCamFps" style="font-size:9px;">— fps</div>
+        <!-- 3D Mesh button — centre top -->
+        <button class="mesh-btn" id="mMeshBtn" onclick="toggleMesh()"
+          style="font-size:10px;padding:5px 14px;min-height:32px;">◈ 3D СЕТКА</button>
+        <!-- Flip camera button -->
+        <button class="flip-cam-btn" onclick="flipCamera()"
+          style="position:absolute;top:7px;right:7px;z-index:10;
+          font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:3px;
+          border:1px solid rgba(0,200,255,.4);background:rgba(8,12,18,.85);color:var(--acc);
+          cursor:pointer;font-weight:700;min-height:32px;white-space:nowrap;">
+          🔄 ЗАДНЯЯ
+        </button>
+        <!-- Camera source bar — bottom -->
+        <div class="cam-src-bar" id="mCamSrcBar" style="bottom:10px;left:10px;right:10px;">
+          <button class="csb-btn on" id="mSrcLocal" onclick="mSelectCamSrc('local')">📷 ВСТРОЕННАЯ</button>
+        </div>
+        <!-- Loading overlay -->
+        <div class="load-ov" id="mLoadOv">
+          <div class="spin"></div>
+          <div class="load-msg" id="mLoadMsg">ИНИЦИАЛИЗАЦИЯ</div>
+        </div>
+        <!-- Yaw warning -->
+        <div class="ang-ov" id="mAngOv" style="bottom:46px;">⚠ YAW <span id="mAngVal">0°</span></div>
+      </div>
+
+      <!-- ── EMOTION STRIP ── -->
+      <div style="display:grid;grid-template-columns:60px 1fr auto;align-items:center;gap:12px;
+        padding:12px 16px;background:var(--s2);border-bottom:1px solid var(--b2);">
+        <div id="mEmIco" style="font-size:46px;line-height:1;text-align:center;">😐</div>
+        <div>
+          <div id="mEmName" style="font-size:18px;font-weight:700;margin-bottom:4px;">Ожидание</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="mEmPct" style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--grn)">—</span>
+            <span id="mEmQ" class="em-q q-hi" style="font-size:8px;">НЕАКТИВНА</span>
+          </div>
+        </div>
+        <div style="text-align:center;padding:8px 12px;background:var(--s3);border-radius:8px;border:1px solid var(--b2);">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:3px;">ВНИМАНИЕ</div>
+          <div id="mAttPct" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--acc);">—</div>
+        </div>
+      </div>
+
+      <!-- ── DEAL GAUGE — MAIN ELEMENT ── -->
+      <div style="padding:16px 16px 12px;background:var(--s1);border-bottom:1px solid var(--b2);" id="mDealGauge">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2.5px;font-weight:700;
+          color:var(--sub);margin-bottom:10px;text-align:center;">▸ ГОТОВНОСТЬ К СДЕЛКЕ</div>
+        <!-- Rainbow bar -->
+        <div style="position:relative;height:32px;border-radius:16px;overflow:hidden;
+          background:linear-gradient(90deg,#ff1f3d 0%,#ff5020 18%,#ff8c00 32%,#ffc930 46%,#b8e000 60%,#50d830 75%,#00f090 100%);">
+          <div id="mDgCursor" style="position:absolute;top:50%;width:6px;height:26px;border-radius:3px;
+            background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(255,255,255,.9);
+            transition:left .7s cubic-bezier(.34,1.2,.64,1);left:50%;z-index:3;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;
+          font-family:var(--mono);font-size:8px;color:var(--dim);">
+          <span>🔴 НЕ ГОТОВ</span><span>🟡</span><span>🟢 ГОТОВ</span>
+        </div>
+        <!-- Big score number -->
+        <div style="text-align:center;margin-top:8px;">
+          <div id="mDgNum" style="font-size:80px;font-weight:700;font-family:var(--mono);
+            line-height:1;color:var(--sub);transition:color .5s;">—</div>
+          <div id="mDgVerdict" style="font-size:17px;font-weight:700;color:var(--sub);
+            margin-top:4px;transition:color .5s;letter-spacing:.5px;">Ожидание данных</div>
+          <div id="mDgSub" style="font-size:12px;color:var(--sub);margin-top:5px;line-height:1.5;">
+            Нажмите СТАРТ</div>
+        </div>
+        <!-- 5 factors -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:12px;">
+          <div style="padding:7px 3px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:7px;color:var(--dim);margin-bottom:3px;">ЭМОЦИЯ</div>
+            <div id="mDf_emo" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);">—</div>
+          </div>
+          <div style="padding:7px 3px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:7px;color:var(--dim);margin-bottom:3px;">ВНИМАНИЕ</div>
+            <div id="mDf_att" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);">—</div>
+          </div>
+          <div style="padding:7px 3px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:7px;color:var(--dim);margin-bottom:3px;">ОТКРЫТ.</div>
+            <div id="mDf_open" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);">—</div>
+          </div>
+          <div style="padding:7px 3px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:7px;color:var(--dim);margin-bottom:3px;">НАПРЯЖ.</div>
+            <div id="mDf_tens" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);">—</div>
+          </div>
+          <div style="padding:7px 3px;background:var(--s2);border:1px solid var(--b2);border-radius:6px;text-align:center;">
+            <div style="font-family:var(--mono);font-size:7px;color:var(--dim);margin-bottom:3px;">НАМЕРЕН.</div>
+            <div id="mDf_wish" style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--dim);">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AGENT CARD ── -->
+      <div class="ag" id="mAgBlock" style="margin:12px 14px 0;">
+        <div class="ag-h">
+          <span class="ag-t" id="mAgT" style="font-size:13px;">Система готова</span>
+          <span class="ag-b b-in" id="mAgB">ОЖИДАНИЕ</span>
+        </div>
+        <div class="ag-x" id="mAgX" style="font-size:13px;line-height:1.7;padding:10px 13px;">
+          Нажмите СТАРТ для анализа.</div>
+        <div class="ag-btns" id="mAgBtns" style="gap:8px;padding:0 13px 12px;"></div>
+      </div>
+
+      <!-- ── START / STOP ── -->
+      <div style="padding:14px 14px 6px;display:flex;flex-direction:column;gap:10px;">
+        <button id="mBtnGo" onclick="startSys()"
+          style="width:100%;padding:20px;font-family:var(--mono);font-size:16px;font-weight:700;
+          letter-spacing:2px;border-radius:14px;border:none;background:var(--acc);color:#000;
+          min-height:60px;cursor:pointer;box-shadow:0 0 24px rgba(0,200,255,.35);">
+          ▶ ЗАПУСТИТЬ АНАЛИЗ
+        </button>
+        <button id="mBtnStop" onclick="stopSys()"
+          style="display:none;width:100%;padding:20px;font-family:var(--mono);font-size:16px;
+          font-weight:700;letter-spacing:2px;border-radius:14px;
+          border:2px solid rgba(255,69,96,.5);background:rgba(255,69,96,.1);color:var(--red);
+          min-height:60px;cursor:pointer;">
+          ■ ОСТАНОВИТЬ
+        </button>
+      </div>
+
+    </div><!-- end panel 0 -->
+
+    <!-- ╔══ PANEL 1: ЭМОЦИИ ══╗ -->
+    <div class="mob-panel" id="mob_p1" style="padding:14px 0 8px;">
+
+      <!-- Positivity Index -->
+      <div style="margin:0 14px 12px;padding:14px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);margin-bottom:10px;font-weight:700;">
+          POSITIVITY INDEX</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+          <div id="mPiNum" style="font-family:var(--mono);font-size:40px;font-weight:700;color:var(--sub);line-height:1;flex-shrink:0;">—</div>
+          <div style="flex:1;position:relative;">
+            <div style="height:14px;border-radius:7px;overflow:hidden;
+              background:linear-gradient(90deg,#ff1f3d,#ff8c00,#ffc930,#b8e000,#00f090);">
+            </div>
+            <div style="position:relative;height:14px;margin-top:-14px;">
+              <div id="mPiCursor" style="position:absolute;top:0;width:5px;height:18px;background:#fff;
+                border-radius:2px;transform:translateX(-50%);box-shadow:0 0 8px rgba(255,255,255,.8);
+                transition:left .4s;left:50%;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- AV row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;">
+          <div style="text-align:center;padding:10px 6px;background:var(--s3);border-radius:8px;">
+            <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:4px;">AROUSAL</div>
+            <div id="mArousalNum" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--yel);">—</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;background:var(--s3);border-radius:8px;">
+            <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:4px;">VALENCE</div>
+            <div id="mValenceNum" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--grn);">—</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;background:var(--s3);border-radius:8px;">
+            <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:4px;">ВНИМАНИЕ</div>
+            <div id="mAttNum2" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--acc);">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expression bars -->
+      <div style="margin:0 14px 12px;padding:14px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);margin-bottom:12px;font-weight:700;">
+          ВЫРАЖЕНИЯ ЛИЦА</div>
+        <div style="display:flex;flex-direction:column;gap:10px;" id="mExprBars">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- Wish intent -->
+      <div class="wish-card" id="mWishCard" style="margin:0 14px 12px;padding:14px 16px;">
+        <div id="mWishIco" style="font-size:32px;flex-shrink:0;">🤔</div>
+        <div style="flex:1;">
+          <div id="mWishLabel" style="font-size:15px;font-weight:700;">Намерение</div>
+          <div id="mWishSub" style="font-size:11px;color:var(--sub);margin-top:3px;">ожидание</div>
+        </div>
+        <div id="mWishConf" style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--sub);flex-shrink:0;">—</div>
+      </div>
+
+      <!-- AV Circumplex -->
+      <div style="margin:0 14px 12px;padding:14px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);margin-bottom:10px;font-weight:700;">
+          AROUSAL-VALENCE CIRCUMPLEX</div>
+        <div style="display:flex;justify-content:center;">
+          <canvas id="mAvCanvas" width="240" height="240"></canvas>
+        </div>
+      </div>
+
+      <!-- Micro events -->
+      <div style="margin:0 14px 10px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);
+          margin-bottom:8px;font-weight:700;">МИКРОВЫРАЖЕНИЯ</div>
+        <div id="mMeList" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;">
+          <div style="font-size:11px;color:var(--dim);text-align:center;padding:10px;">Ожидание...</div>
+        </div>
+      </div>
+    </div><!-- end panel 1 -->
+
+    <!-- ╔══ PANEL 2: ПРОФИЛЬ ══╗ -->
+    <div class="mob-panel" id="mob_p2" style="padding:14px 0 8px;">
+
+      <!-- Buy probability ring -->
+      <div style="margin:0 14px 12px;padding:16px;background:var(--s2);border:1px solid var(--b2);
+        border-radius:12px;display:flex;align-items:center;gap:16px;">
+        <div style="flex-shrink:0;">
+          <svg viewBox="0 0 72 72" width="72" height="72" style="transform:rotate(-90deg);">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--s3)" stroke-width="6"/>
+            <circle id="mRingFg" cx="36" cy="36" r="30" fill="none" stroke="#00f090"
+              stroke-width="6" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+          </svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:5px;font-weight:700;">
+            ВЕРОЯТНОСТЬ ПОКУПКИ</div>
+          <div id="mBuyPct" style="font-size:42px;font-weight:700;line-height:1;color:var(--grn);">—</div>
+          <div id="mBuyDesc" style="font-size:12px;color:var(--sub);margin-top:5px;">Запустите анализ</div>
+        </div>
+      </div>
+
+      <!-- Age / Gender / Features -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 14px 12px;">
+        <div style="padding:12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">🎂</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:4px;">ВОЗРАСТ</div>
+          <div id="mMcAge" style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--acc);">—</div>
+        </div>
+        <div style="padding:12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">👤</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:4px;">ПОЛ</div>
+          <div id="mMcGender" style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--sub);">—</div>
+        </div>
+        <div style="padding:12px 8px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">👓</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-bottom:4px;">ЧЕРТЫ</div>
+          <div id="mMcFeatures" style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--sub);">—</div>
+        </div>
+      </div>
+
+      <!-- Character traits -->
+      <div style="margin:0 14px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;overflow:hidden;">
+        <div style="padding:12px 16px;background:var(--s3);border-bottom:1px solid var(--b2);">
+          <div id="mPcTitle" style="font-size:16px;font-weight:700;">Ожидание</div>
+          <div id="mPcSub" style="font-family:var(--mono);font-size:10px;color:var(--sub);margin-top:3px;">запустите камеру</div>
+        </div>
+        <div id="mPcTraits" style="padding:12px 16px;display:flex;flex-direction:column;gap:9px;">
+          <div style="font-size:12px;color:var(--dim);text-align:center;padding:10px;">Запустите камеру</div>
+        </div>
+      </div>
+
+      <!-- Tactic -->
+      <div id="mTacticBox" style="margin:0 14px 12px;padding:14px 16px;background:rgba(0,200,255,.05);
+        border:1px solid rgba(0,200,255,.18);border-left:4px solid var(--acc);border-radius:0 10px 10px 0;
+        font-size:13px;color:var(--txt);line-height:1.8;">
+        <strong style="display:block;font-family:var(--mono);font-size:8px;letter-spacing:1.5px;
+          color:var(--acc);margin-bottom:5px;font-weight:700;">ПЕРСОНАЛЬНАЯ ТАКТИКА</strong>
+        Активируйте систему.
+      </div>
+
+      <!-- Log -->
+      <div style="margin:0 14px 10px;">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--sub);
+          margin-bottom:8px;font-weight:700;">ЖУРНАЛ СОБЫТИЙ</div>
+        <div id="mLogList" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;">
+          <div style="font-size:11px;color:var(--dim);text-align:center;padding:10px;">Нет событий</div>
+        </div>
+      </div>
+    </div><!-- end panel 2 -->
+
+    <!-- ╔══ PANEL 3: WiFi ══╗ -->
+    <div class="mob-panel" id="mob_p3" style="padding:14px 0 8px;">
+      <div style="margin:0 14px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:12px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;
+          background:var(--s3);border-bottom:1px solid var(--b2);">
+          <span style="font-family:var(--mono);font-size:10px;letter-spacing:2px;font-weight:700;color:var(--acc);">
+            📡 WiFi / IP КАМЕРЫ</span>
+          <button class="wifi-scan-btn" onclick="wifiScan()" id="mWifiScanBtn"
+            style="font-size:10px;padding:8px 16px;min-height:40px;">🔍 СКАНИРОВАТЬ</button>
+        </div>
+        <div id="mWifiCamList" style="min-height:60px;">
+          <div style="padding:16px;font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;line-height:1.8;">
+            Нажмите СКАНИРОВАТЬ<br>или добавьте вручную
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding:12px 16px;">
+          <input id="mWifiUrlInp" class="wifi-url-inp" placeholder="192.168.1.x или rtsp://..."
+            style="font-size:13px;min-height:48px;border-radius:8px;">
+          <button class="wifi-add-btn" onclick="mWifiAddManual()"
+            style="font-size:11px;padding:10px 16px;min-height:48px;border-radius:8px;">+ ДОБАВИТЬ</button>
+        </div>
+        <div style="display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap;">
+          <button class="wifi-proto on" onclick="setProto('mjpeg',this)"
+            style="min-height:40px;font-size:10px;border-radius:8px;flex:1;">MJPEG</button>
+          <button class="wifi-proto" onclick="setProto('rtsp',this)"
+            style="min-height:40px;font-size:10px;border-radius:8px;flex:1;">RTSP/WS</button>
+          <button class="wifi-proto" onclick="setProto('hls',this)"
+            style="min-height:40px;font-size:10px;border-radius:8px;flex:1;">HLS</button>
+          <button class="wifi-proto" onclick="setProto('webrtc',this)"
+            style="min-height:40px;font-size:10px;border-radius:8px;flex:1;">WebRTC</button>
+        </div>
+      </div>
+      <!-- Tips -->
+      <div style="margin:0 14px;padding:14px 16px;background:rgba(0,200,255,.04);
+        border:1px solid rgba(0,200,255,.15);border-radius:10px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--acc);font-weight:700;margin-bottom:8px;">
+          💡 СОВМЕСТИМЫЕ КАМЕРЫ</div>
+        <div style="font-size:12px;color:var(--sub);line-height:2;">
+          Hikvision · Dahua · Reolink · Tapo · RTSP IP-камеры<br>
+          Relay: go2rtc · MediaMTX · rtsp-simple-server<br>
+          <span style="color:var(--dim);font-size:11px;">iPhone и камера — в одной WiFi-сети</span>
+        </div>
+      </div>
+    </div><!-- end panel 3 -->
+
+  </div><!-- end mobContent -->
+
+  <!-- ══ BOTTOM TABS ══ -->
+  <div style="position:fixed;bottom:0;left:0;right:0;
+    height:calc(var(--tab) + var(--safe-bot));
+    padding-bottom:var(--safe-bot);
+    background:rgba(8,12,18,.98);border-top:1px solid var(--b2);
+    display:grid;grid-template-columns:repeat(4,1fr);z-index:300;
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);">
+    <div class="mob-tab active" id="mtab0" onclick="switchMobPanel(0)"
+      style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;cursor:pointer;color:var(--acc);border-top:2px solid var(--acc);
+      font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.5px;
+      padding:8px 4px;user-select:none;-webkit-user-select:none;">
+      <span style="font-size:22px;">📷</span><span>КАМЕРА</span>
+    </div>
+    <div class="mob-tab" id="mtab1" onclick="switchMobPanel(1)"
+      style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;cursor:pointer;color:var(--dim);border-top:2px solid transparent;
+      font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.5px;
+      padding:8px 4px;user-select:none;-webkit-user-select:none;">
+      <span style="font-size:22px;">😊</span><span>ЭМОЦИИ</span>
+    </div>
+    <div class="mob-tab" id="mtab2" onclick="switchMobPanel(2)"
+      style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;cursor:pointer;color:var(--dim);border-top:2px solid transparent;
+      font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.5px;
+      padding:8px 4px;user-select:none;-webkit-user-select:none;">
+      <span style="font-size:22px;">🧠</span><span>ПРОФИЛЬ</span>
+    </div>
+    <div class="mob-tab" id="mtab3" onclick="switchMobPanel(3)"
+      style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;cursor:pointer;color:var(--dim);border-top:2px solid transparent;
+      font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.5px;
+      padding:8px 4px;user-select:none;-webkit-user-select:none;">
+      <span style="font-size:22px;">📡</span><span>WiFi</span>
+    </div>
+  </div>
+
+</div><!-- end mobileWrap -->
+
+</body>
+</html>
